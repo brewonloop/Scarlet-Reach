@@ -2,7 +2,7 @@
 /datum/advclass/mercenary/grudgekeeper
 	name = "Grudgekeeper"
 	tutorial = "The Bearer of Grudges. Well-Respected among your fellow Keepers, chosen to be the one who never forgets." //Writing is not my forte
-		allowed_sexes = list(MALE, FEMALE)
+	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = list(
 		/datum/species/dwarf,
 		/datum/species/dwarf/mountain
