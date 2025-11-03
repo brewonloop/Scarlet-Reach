@@ -76,6 +76,7 @@
 		ADD_TRAIT(H, TRAIT_SEEDKNOW, TRAIT_GENERIC)
 		ADD_TRAIT(H, TRAIT_NOSTINK, TRAIT_GENERIC)
 		ADD_TRAIT(H, TRAIT_LONGSTRIDER, TRAIT_GENERIC)
+		ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_farmer
 	parent_type = /datum/advclass
@@ -171,6 +172,7 @@
 	H.change_stat("endurance", 2)
 	H.change_stat("constitution", 2)
 	ADD_TRAIT(H, TRAIT_TRAINED_SMITH, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_blacksmith
 	parent_type = /datum/advclass
@@ -275,6 +277,7 @@
 	H.change_stat("endurance", 1)
 	H.change_stat("constitution", 2)
 	H.change_stat("speed", -1)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_cheesemaker
 	parent_type = /datum/advclass
@@ -302,6 +305,7 @@
 	H.change_stat("intelligence", 2)
 	H.change_stat("constitution", 2)
 	H.change_stat("endurance", 1)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_seamstress
 	parent_type = /datum/advclass
@@ -324,6 +328,7 @@
 	H.change_stat("speed", 2)
 	H.change_stat("perception", 1)
 	H.change_stat("strength", -1)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_potter
 	parent_type = /datum/advclass
@@ -347,6 +352,7 @@
 	H.change_stat("constitution", 1)
 	H.change_stat("perception", 2)
 	H.change_stat("speed", -1)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_towndoctor
 	parent_type = /datum/advclass
@@ -370,7 +376,9 @@
 	H.adjust_skillrank(/datum/skill/craft/alchemy, 2, TRUE)
 	H.change_stat("intelligence", 3)
 	H.change_stat("fortune", 1)
-	ADD_TRAIT(H, TRAIT_EMPATH, TRAIT_NOSTINK)
+	ADD_TRAIT(H, TRAIT_EMPATH, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_NOSTINK, TRAIT_GENERIC)
+
 
 /datum/advclass/prisoner_drunkard
 	parent_type = /datum/advclass
@@ -463,6 +471,7 @@
 	H.change_stat("constitution", 2)
 	H.change_stat("fortune", 2)
 	ADD_TRAIT(H, TRAIT_DARKVISION, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 /datum/advclass/prisoner_woodcutter
 	parent_type = /datum/advclass
@@ -496,6 +505,7 @@
 	H.change_stat("endurance", 1)
 	H.change_stat("constitution", 1)
 	H.change_stat("perception", 1)
+	ADD_TRAIT(H, TRAIT_PEASANTMILITIA, TRAIT_JOB)
 
 // Cleric Prisoner subclass
 /datum/advclass/prisonercleric

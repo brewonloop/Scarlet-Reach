@@ -6,7 +6,7 @@
 	outfit = /datum/outfit/job/roguetown/adventurer/butcher
 	category_tags = list(CTAG_PILGRIM, CTAG_TOWNER)
 	traits_applied = list(TRAIT_PEASANTMILITIA)
-	total_positions = 4
+	maximum_possible_slots = 4
 
 	subclass_stats = list(
 		STATKEY_CON = 2,
