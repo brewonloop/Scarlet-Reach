@@ -205,34 +205,33 @@
 		else //In case they DC or don't choose close the panel, etc
 			r_hand = /obj/item/rogueweapon/eaglebeak/lucerne
 
-	var/helmets = list("Pigface Bascinet","Guard Helmet", "Barred Helmet","Bucket Helmet","Knight Helmet","Volf Plate Helmet" ,"Visored Sallet"	,"Armet","Hounskull Bascinet", "Etruscan Bascinet", "Slitted Kettle")
-	var/helmchoice = input("Choose your Helm.", "TAKE UP HELMS") as anything in helmets
-	switch(helmchoice)
-		if "Pigface Bascinet" 
-			head = /obj/item/clothing/head/roguetown/helmet/bascinet/pigface,
-		if "Guard Helmet"		
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/guard,
-		if "Barred Helmet"		
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/sheriff,
-		if "Bucket Helmet"		
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/bucket,
-		if "Knight Helmet"		
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight,
-		if "Volf Plate Helmet" 
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/volfplate,
-		if "Visored Sallet"	
-			head = /obj/item/clothing/head/roguetown/helmet/sallet/visored,
-		if "Armet"				
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight/armet,
-		if "Hounskull Bascinet" 
-			head = /obj/item/clothing/head/roguetown/helmet/bascinet/pigface/hounskull,
-		if "Etruscan Bascinet" 
-			head = /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan,
-		if "Slitted Kettle" 
-			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight/skettle,
+	var/helmet = list("Pigface Bascinet","Guard Helmet","Barred Helmet","Bucket Helmet","Knight Helmet","Volf Plate Helmet" ,"Visored Sallet"	,"Armet","Hounskull Bascinet", "Etruscan Bascinet", "Slitted Kettle",)
+	var/helmet_choice = input("Choose your Helm.", "TAKE UP HELMS") as anything in helmet
+	switch(helmet_choice)
+		if("Pigface Bascinet") 
+			head = /obj/item/clothing/head/roguetown/helmet/bascinet/pigface
+		if("Guard Helmet")	
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/guard
+		if("Barred Helmet")		
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/sheriff
+		if("Bucket Helmet")		
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/bucket
+		if("Knight Helmet")		
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight
+		if("Volf Plate Helmet") 
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/volfplate
+		if("Visored Sallet")	
+			head = /obj/item/clothing/head/roguetown/helmet/sallet/visored
+		if("Armet")			
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight/armet
+		if("Hounskull Bascinet")
+			head = /obj/item/clothing/head/roguetown/helmet/bascinet/pigface/hounskull
+		if("Etruscan Bascinet")
+			head = /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan
+		if("Slitted Kettle") 
+			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight/skettle
 		else //In case they DC or don't choose close the panel, etc
 			head = /obj/item/clothing/head/roguetown/helmet/heavy/knight
-
 
 	ADD_TRAIT(H, TRAIT_NOBLE, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_HEAVYARMOR, TRAIT_GENERIC)
