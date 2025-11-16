@@ -49,7 +49,7 @@
 
 	if(!do_subtle)
 		if(user.sexcon.force > SEX_FORCE_HIGH)
-			playsound(user, 'sound/misc/mat/fingering.ogg', 35, TRUE, -2, ignore_walls = FALSE)
+			playsound(target, 'sound/misc/mat/fingering.ogg', 35, TRUE, -2, ignore_walls = FALSE)
 		else
 			user.make_sucking_noise()
 		user.sexcon.do_thrust_animate(target)
