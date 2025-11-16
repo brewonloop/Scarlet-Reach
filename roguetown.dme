@@ -742,6 +742,7 @@
 #include "code\datums\sexcon\sex_actions\deviant\spanking.dm"
 #include "code\datums\sexcon\sex_actions\deviant\tailjob.dm"
 #include "code\datums\sexcon\sex_actions\deviant\tailgrope.dm"
+#include "code\datums\sexcon\sex_actions\deviant\tailmaw.dm"
 #include "code\datums\sexcon\sex_actions\deviant\tailpegging_anal.dm"
 #include "code\datums\sexcon\sex_actions\deviant\tailpegging_vaginal.dm"
 #include "code\datums\sexcon\sex_actions\deviant\tailpegging_oral.dm"
