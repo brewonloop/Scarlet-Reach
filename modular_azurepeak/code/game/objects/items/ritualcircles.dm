@@ -420,7 +420,7 @@
 						playsound(loc, 'sound/vo/mobs/vw/bark (1).ogg', 100, FALSE, -1)
 						if(do_after(user, 30))
 							icon_state = "dendor_active"
-							loc.visible_message(span_warning("[user] snaps their head upward, they let out a howl!"))
+							loc.visible_message(span_warning("[user] suddenly snaps their head upward, letting out a twisted howl!"))
 							playsound(loc, 'sound/vo/mobs/wwolf/howl (2).ogg', 100, FALSE, -1)
 							requestmadness(src)
 							user.apply_status_effect(/datum/status_effect/debuff/ritesexpended_high)
