@@ -178,7 +178,7 @@ SUBSYSTEM_DEF(familytree)
 
 /datum/controller/subsystem/familytree/proc/AddRoyal(mob/living/carbon/human/H, status)
 	if(!ruling_family.housename)
-		ruling_family.housename = "Royal"
+		ruling_family.housename = " Royal"
 	var/datum/family_member/member = ruling_family.CreateFamilyMember(H)
 	if(!member)
 		return
