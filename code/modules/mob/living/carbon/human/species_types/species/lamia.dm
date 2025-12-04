@@ -10,6 +10,7 @@
 	use_titles = TRUE
 	race_titles = list("Mervolk", "Eelvolk", "Naga", "Siren", "Gorgon")
 	base_name = "Beastvolk"
+	sub_name = "Lamia"
 	desc = "<b>Lamia: Raiders of the Coast</b><br>\
 	Like the wildkin of the lands of Enigma, Lamia are a catch-all umbrella term for various humanized spawn of the deep made by Abyssor’s hand. \
 	Mermaids, naga, and sirens all fall into this category. \

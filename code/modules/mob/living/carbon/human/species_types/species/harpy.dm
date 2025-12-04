@@ -10,6 +10,7 @@
 	use_titles = TRUE
 	race_titles = list("Bat-Harpy", "Stork-Harpy", "Finch-Harpy", "Owl-Harpy", "Shrike-Harpy", "Condor-Harpy", "Parrot-Harpy", "Chicken-Harpy", "Turkey-Harpy", "Zad-Harpy", "Osprey-Harpy", "Pigeon-Harpy", "Dove-Harpy", "Gull-Harpy")
 	base_name = "Beastvolk"
+	sub_name = "Harpy"
 	desc = "<b>Harpy: Songbirds in Flight</b><br>\
 	Called ‘magpies’ by those distrusting or irritated, some mistake this species for a halfkin race. \
 	The harpies are native to the coastal cliffs of Etrusca yet their colonies have spread to great sequoia forests and the chilly tops of mountains far across the world. \

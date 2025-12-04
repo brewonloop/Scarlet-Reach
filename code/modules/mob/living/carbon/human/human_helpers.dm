@@ -257,3 +257,6 @@
 	walk_to_steps_taken = 0
 	walk_to_last_pos = null
 	walk_to_cached_path = null
+
+/mob/living/carbon/human/proc/ReturnRelation(mob/living/carbon/human/stranger)
+	return family_datum.ReturnRelation(src, stranger)

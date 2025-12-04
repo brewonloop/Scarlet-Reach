@@ -365,15 +365,15 @@
 
 	// Direct relationships
 	if(other in parents)
-		return other.person?.gender == MALE ? "father" : "mother"
+		return other.person?.pronouns == HE_HIM ? "father" : "mother"
 	if(other in children)
-		return other.person?.gender == MALE ? "son" : "daughter"
+		return other.person?.pronouns == HE_HIM ? "son" : "daughter"
 	if(other in spouses)
-		return other.person?.gender == MALE ? "husband" : "wife"
+		return other.person?.pronouns == HE_HIM ? "husband" : "wife"
 
 	// Sibling check
 	if(AreSiblings(other))
-		return other.person?.gender == MALE ? "brother" : "sister"
+		return other.person?.pronouns == HE_HIM ? "brother" : "sister"
 
 	// Grandparent/Grandchild
 	var/grandparent_rel = GetGrandparentRelation(other)
@@ -414,26 +414,26 @@
 	for(var/datum/family_member/spouse in spouses)
 		// Check direct relationships to spouse's family
 		if(other in spouse.parents)
-			return other.person?.gender == MALE ? "father-in-law" : "mother-in-law"
+			return other.person?.pronouns == HE_HIM ? "father-in-law" : "mother-in-law"
 		if(other in spouse.children)
-			return other.person?.gender == MALE ? "son-in-law" : "daughter-in-law"
+			return other.person?.pronouns == HE_HIM ? "son-in-law" : "daughter-in-law"
 		if(spouse.AreSiblings(other))
-			return other.person?.gender == MALE ? "brother-in-law" : "sister-in-law"
+			return other.person?.pronouns == HE_HIM ? "brother-in-law" : "sister-in-law"
 
 		// Check spouse's grandparents
 		for(var/datum/family_member/spouse_parent in spouse.parents)
 			if(other in spouse_parent.parents)
-				return other.person?.gender == MALE ? "grandfather-in-law" : "grandmother-in-law"
+				return other.person?.pronouns == HE_HIM ? "grandfather-in-law" : "grandmother-in-law"
 
 	// Check if other is married to our sibling
 	for(var/datum/family_member/member in family.members)
 		if(AreSiblings(member) && (other in member.spouses))
-			return other.person?.gender == MALE ? "brother-in-law" : "sister-in-law"
+			return other.person?.pronouns == HE_HIM ? "brother-in-law" : "sister-in-law"
 
 	// Check if other is married to our child (son/daughter-in-law)
 	for(var/datum/family_member/child in children)
 		if(other in child.spouses)
-			return other.person?.gender == MALE ? "son-in-law" : "daughter-in-law"
+			return other.person?.pronouns == HE_HIM ? "son-in-law" : "daughter-in-law"
 
 	return null
 
@@ -453,14 +453,14 @@
 	// Check if other is aunt/uncle of src (sibling of parent)
 	for(var/datum/family_member/parent in parents)
 		if(other.AreSiblings(parent) && other != parent)
-			return other.person?.gender == MALE ? "uncle" : "aunt"
+			return other.person?.pronouns == HE_HIM ? "uncle" : "aunt"
 	return null
 
 /datum/family_member/proc/GetNieceNephewRelation(datum/family_member/other)
 	// Check if other is niece/nephew of src (child of sibling)
 	for(var/datum/family_member/sibling in family.members)
 		if(AreSiblings(sibling) && (sibling != src) && (other in sibling.children))
-			return other.person?.gender == MALE ? "nephew" : "niece"
+			return other.person?.pronouns == HE_HIM ? "nephew" : "niece"
 	return null
 
 
@@ -468,7 +468,7 @@
 	// Check if other is grandparent of src
 	for(var/datum/family_member/parent in parents)
 		if(other in parent.parents)
-			if(other.person?.gender == MALE)
+			if(other.person?.pronouns == HE_HIM)
 				return "grandfather"
 			else
 				return "grandmother"
@@ -478,7 +478,7 @@
 	// Check if other is grandchild of src
 	for(var/datum/family_member/child in children)
 		if(other in child.children)
-			if(other.person?.gender == MALE)
+			if(other.person?.pronouns == HE_HIM)
 				return "grandson"
 			else
 				return "granddaughter"
@@ -501,7 +501,7 @@
 	for(var/datum/family_member/parent in parents)
 		for(var/datum/family_member/grandparent in parent.parents)
 			if(other in grandparent.parents)
-				if(other.person?.gender == MALE)
+				if(other.person?.pronouns == HE_HIM)
 					return "great-grandfather"
 				else
 					return "great-grandmother"
@@ -510,7 +510,7 @@
 	for(var/datum/family_member/child in children)
 		for(var/datum/family_member/grandchild in child.children)
 			if(other in grandchild.children)
-				if(other.person?.gender == MALE)
+				if(other.person?.pronouns == HE_HIM)
 					return "great-grandson"
 				else
 					return "great-granddaughter"
@@ -647,20 +647,18 @@
 			var/status_text = ""
 			var/datum/family_member/checker_member = GetMemberForPerson(checker)
 			var/relation_text = ""
-			var/name_color = "FFFFFF"
+			var/name_color = "9370DB"
 			if(checker_member)
-				relation_text = member.GetRelationTo(checker_member)
+				relation_text = checker_member.GetRelationshipTo(member)
 				switch(relation_text)
-					if("Your child")
-						name_color = "32CD32"
-					if("Your parent")
+					if("father", "mother")
 						name_color = "4169E1"
-					if("Your sibling")
+					if("son", "daughter")
+						name_color = "32CD32"
+					if("brother", "sister")
 						name_color = "FFD700"
-					if("Your spouse")
+					if("husband", "wife")
 						name_color = "FF69B4"
-					if("Your relative")
-						name_color = "9370DB"
 			if(member.adoption_status)
 				status_text = " (Adopted)"
 			if(member.spouses.len)
@@ -670,9 +668,10 @@
 						spouse_names += ", "
 					spouse_names += spouse.person?.real_name
 				status_text += " (Married to: [spouse_names])"
+			relation_text = uppertext(relation_text)
 
 			. += "<B><font color=#[name_color];text-shadow:0 0 10px #8d5958, 0 0 20px #8d5958, 0 0 30px #8d5958, 0 0 40px #8d5958, 0 0 50px #e60073, 0 0 60px #8d5958, 0 0 70px #8d5958;>\
-				[member.person?.real_name]</font></B> <I>[relation_text]</I> [status_text]<BR>"
+				[member.person?.real_name]</font></B> <B>[relation_text]</B> [status_text]<BR>"
 		. += "<BR>"
 
 	. += "----------<br>"
@@ -682,22 +681,6 @@
 		if(member.person == P)
 			return member
 	return null
-
-/datum/family_member/proc/GetRelationTo(datum/family_member/checker_member)
-	if(!checker_member)
-		return ""
-	if(checker_member == src)
-		return "Yourself"
-	if(src.parents.Find(checker_member))
-		return "Your child"
-	if(checker_member.parents.Find(src))
-		return "Your parent"
-	for(var/datum/family_member/p in src.parents)
-		if(checker_member.parents.Find(p))
-			return "Your sibling"
-	if(checker_member.spouses.Find(src))
-		return "Your spouse"
-	return "Your relative"
 
 /datum/heritage/proc/GetGenerationName(generation)
 	switch(generation)

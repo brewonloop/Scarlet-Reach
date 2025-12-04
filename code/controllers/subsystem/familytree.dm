@@ -185,8 +185,6 @@ SUBSYSTEM_DEF(familytree)
 
 	// If this is the first royal, generate a historical lineage
 	if(!ruling_family.founder)
-		member.generation = 0
-		ruling_family.founder = member
 		GenerateRoyalLineage(member, status)
 		H.ShowFamilyUI(TRUE)
 		return
@@ -196,7 +194,7 @@ SUBSYSTEM_DEF(familytree)
 		if(FAMILY_FATHER, FAMILY_MOTHER)
 			// If there's already a monarch, make them spouses
 			var/datum/family_member/existing_monarch = GetCurrentMonarch()
-			member.generation = 0
+			member.generation = 12
 			if(existing_monarch)
 				ruling_family.MarryMembers(existing_monarch, member)
 
@@ -218,7 +216,7 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/GetCurrentMonarch()
 	// Find the monarch at generation 12 (current ruling generation)
 	for(var/datum/family_member/member in ruling_family.members)
-		if(member.generation == 0 && (member.person.job == "Grand Duke" || member.person.job == "Grand Duchess"))
+		if(member.generation == 12 && (member.person.job == "Grand Duke" || member.person.job == "Grand Duchess"))
 			return member
 	return null
 
@@ -241,7 +239,7 @@ SUBSYSTEM_DEF(familytree)
 		// Create a spouse for the hand
 		var/mob/living/carbon/human/dummy/spouse = new()
 		spouse.age = hand_member.person.age
-		spouse.gender = hand_member.person.gender == MALE ? FEMALE : MALE
+		spouse.gender = hand_member.person.pronouns == HE_HIM ? FEMALE : MALE
 		spouse.real_name = GenerateRoyalName(spouse.gender, hand_member.generation)
 		var/datum/family_member/hand_spouse = ruling_family.CreateFamilyMember(spouse)
 		hand_spouse.generation = hand_member.generation
@@ -250,7 +248,7 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/GenerateRoyalLineage(datum/family_member/current_royal, status)
 	// Set as current generation
 	ruling_family.founder = current_royal
-	current_royal.generation = 0  // Start at generation 12 to leave room for ancestors
+	current_royal.generation = 12  // Start at generation 12 to leave room for ancestors
 
 	// Update ruling family's species based on first member
 	ruling_family.dominant_species = current_royal.person.dna.species.type
@@ -265,6 +263,7 @@ SUBSYSTEM_DEF(familytree)
 		ancestor.age = age_progression[min(current_royal.generation - i, age_progression.len)]
 		ancestor.gender = prob(50) ? MALE : FEMALE
 		ancestor.real_name = GenerateRoyalName(ancestor.gender, i)
+		set_species_type(ancestor, ruling_family.dominant_species)
 		var/datum/family_member/parent = ruling_family.CreateFamilyMember(ancestor)
 		parent.generation = i
 
@@ -273,6 +272,7 @@ SUBSYSTEM_DEF(familytree)
 		spouse.age = ancestor.age
 		spouse.gender = ancestor.gender == MALE ? FEMALE : MALE
 		spouse.real_name = GenerateRoyalName(spouse.gender, i)
+		set_species_type(spouse, ruling_family.dominant_species)
 		var/datum/family_member/parent_spouse = ruling_family.CreateFamilyMember(spouse)
 		parent_spouse.generation = i
 
@@ -287,6 +287,7 @@ SUBSYSTEM_DEF(familytree)
 			sibling.age = ancestor.age
 			sibling.gender = prob(50) ? MALE : FEMALE
 			sibling.real_name = GenerateRoyalName(sibling.gender, i + 1)
+			set_species_type(sibling, ruling_family.dominant_species)
 			var/datum/family_member/sibling_member = ruling_family.CreateFamilyMember(sibling)
 			sibling_member.generation = i + 1
 			sibling_member.AddParent(parent)
@@ -294,14 +295,22 @@ SUBSYSTEM_DEF(familytree)
 
 		current_ancestor = parent
 
+/datum/controller/subsystem/familytree/proc/set_species_type(mob/living/carbon/human/H, species_type)
+	if(!H || !species_type)
+		return
+
+	var/datum/species/S = new species_type
+	H.set_species(S)
+	H.dna.species = S
+
 /datum/controller/subsystem/familytree/proc/GenerateRoyalName(gender, generation)
 	var/list/male_names = list(
-		"King" = list("Alexander", "William", "Edward", "Henry", "Richard", "George"),
-		"Prince" = list("Charles", "Philip", "Arthur", "Frederick", "Edmund")
+		"King" = list("Otto", "Arnulf", "Ludwig", "Henri", "Louis", "Francois"),
+		"Prince" = list("Karl", "Konrad", "Heinrich", "Raoul", "Hugues")
 	)
 	var/list/female_names = list(
-		"Queen" = list("Victoria", "Elizabeth", "Mary", "Anne", "Catherine"),
-		"Princess" = list("Margaret", "Charlotte", "Sophia", "Alexandra")
+		"Queen" = list("Hildegard", "Freya", "Helga", "Jeanne", "Adeline"),
+		"Princess" = list("Karoline", "Hedwig", "Anneliese", "Elise")
 	)
 
 	var/title

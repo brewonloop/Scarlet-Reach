@@ -237,7 +237,8 @@
 	if(istype(H, /mob/living/carbon/human))
 		var/mob/living/carbon/human/Hu = H
 		if(Hu.familytree_pref != FAMILY_NONE && !Hu.family_datum)
-			addtimer(CALLBACK(SSfamilytree, TYPE_PROC_REF(/datum/controller/subsystem/familytree, AddLocal), H, Hu.familytree_pref), 60 SECONDS)
+			var/timer = (rand(1,30) + 10)
+			addtimer(CALLBACK(SSfamilytree, TYPE_PROC_REF(/datum/controller/subsystem/familytree, AddLocal), H, Hu.familytree_pref), timer SECONDS)
 
 	if(H.mind.special_role == "Court Agent" || H.mind.assigned_role == "Bandit" || H.mind.assigned_role == "Wretch") //For obfuscating Court Agents & Bandits in Actors list
 		if (istype(H, /mob/living/carbon/human)) //For determining if the actor has a species name to display

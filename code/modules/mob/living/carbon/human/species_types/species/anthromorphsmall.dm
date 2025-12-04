@@ -6,6 +6,7 @@
 	id = "anthromorphsmall"
 	is_subrace = TRUE
 	base_name = "Beastvolk"
+	sub_name = "Beastvolk"
 	use_titles = TRUE
 	race_titles = list("Catvolk", "Dogvolk", "Venardvolk", "Rousvolk", "Possumvolk", "Pigvolk", "Rabbitvolk", "Raccoonvolk", "Red Pandavolk", "Sealvolk", "Hyenavolk", "Coyotevolk", "Jackalvolk", "Batvolk", "Ottervolk", "Monstervolk")
 	desc = "<b>Verminvolk: Outcasts of the World</b><br>\
