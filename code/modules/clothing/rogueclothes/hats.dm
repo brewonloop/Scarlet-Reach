@@ -2818,6 +2818,7 @@
 	icon_state = "merchelmet"
 	item_state = "merchelmet"
 	allowed_race = OGRE_RACE_TYPES
+	flags_inv = HIDEEARS|HIDEHAIR
 
 /obj/item/clothing/head/roguetown/helmet/heavy/graggar/ogre
 	name = "crushing barbute"
@@ -2826,3 +2827,4 @@
 	icon_state = "warlhelmet"
 	item_state = "warlhelmet"
 	allowed_race = OGRE_RACE_TYPES
+	flags_inv = HIDEEARS|HIDEHAIR
