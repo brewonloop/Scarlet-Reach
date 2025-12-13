@@ -91,3 +91,8 @@
 	var/vitae_pool = 8000
 
 	var/next_smell = 0
+
+	/// Bitflags for pending icon updates - batched at end of tick
+	var/pending_icon_updates = NONE
+	/// World time when pending updates should be processed
+	var/icon_update_scheduled_time = 0
