@@ -101,10 +101,14 @@
 /datum/skill/craft/alchemy
 	name = "Alchemy"
 	desc = "Determines what kind of potions you can brew and the types of transmutation and alchemy recipes you have access to"
-	advancement_traits = list(SKILL_LEVEL_JOURNEYMAN = list(TRAIT_TALENTED_ALCHEMIST))
 	dreams = list(
 		"...the smell of sulfur singes your nostrils... you taste iron... the smoke clears as you stare down at the reflection in your cauldron... the Queen stares back at you... she looks like she's crying..."
 	)
+
+/datum/skill/craft/alchemy/New()
+	. = ..()
+	advancement_traits = list()
+	advancement_traits["[SKILL_LEVEL_APPRENTICE]"] = list(TRAIT_TALENTED_ALCHEMIST)
 
 /datum/skill/craft/alchemy/skill_level_effect(level, datum/mind/mind)
 	if(level > SKILL_LEVEL_MASTER)

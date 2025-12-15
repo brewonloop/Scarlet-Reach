@@ -41,6 +41,8 @@
 	var/list/skill_experience = list()
 	///Cooldown for level up effects. Duplicate from sleep_adv
 	COOLDOWN_DECLARE(level_up)
+	///Cooldown for trait block warning message
+	COOLDOWN_DECLARE(trait_block_warning)
 
 /datum/skill_holder/New()
 	. = ..()
@@ -64,35 +66,18 @@
 	// Check if advancement is blocked by missing required traits
 	if(check_apprentice && S.advancement_traits)
 		var/current_level = known_skills[S] || SKILL_LEVEL_NONE
-		for(var/required_level in S.advancement_traits)
+		
+		for(var/level_string in S.advancement_traits)
+			var/required_level = text2num(level_string)
+			// If we're at or past the level that requires the trait, block all XP if trait missing
 			if(current_level >= required_level)
-				continue // Already past this threshold
-			// Check if we would cross this threshold with this XP gain
-			var/new_exp = skill_experience[S] + amt
-			var/threshold_exp
-			switch(required_level)
-				if(SKILL_LEVEL_LEGENDARY)
-					threshold_exp = SKILL_EXP_LEGENDARY
-				if(SKILL_LEVEL_MASTER)
-					threshold_exp = SKILL_EXP_MASTER
-				if(SKILL_LEVEL_EXPERT)
-					threshold_exp = SKILL_EXP_EXPERT
-				if(SKILL_LEVEL_JOURNEYMAN)
-					threshold_exp = SKILL_EXP_JOURNEYMAN
-				if(SKILL_LEVEL_APPRENTICE)
-					threshold_exp = SKILL_EXP_APPRENTICE
-				if(SKILL_LEVEL_NOVICE)
-					threshold_exp = SKILL_EXP_NOVICE
-				else
-					threshold_exp = 0
-			if(new_exp >= threshold_exp)
-				// Would cross threshold - check for required traits
-				var/list/required_traits = S.advancement_traits[required_level]
+				var/list/required_traits = S.advancement_traits[level_string]
 				for(var/trait in required_traits)
 					if(!HAS_TRAIT(current, trait))
-						if(!silent)
+						if(COOLDOWN_FINISHED(src, trait_block_warning))
 							to_chat(current, span_warning("My [S.name] knowledge feels... blocked. Perhaps I need some natural talent for this."))
-						return
+							COOLDOWN_START(src, trait_block_warning, 60 SECONDS)
+						return FALSE // Return FALSE to indicate XP was blocked
 	
 	skill_experience[S] = max(0, skill_experience[S] + amt) //Prevent going below 0
 	var/old_level = known_skills[S]
