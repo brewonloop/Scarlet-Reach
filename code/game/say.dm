@@ -123,7 +123,10 @@ GLOBAL_LIST_INIT(freqtospan, list(
 			else
 				hidden = TRUE
 			if(hidden)
-				if(istype(speaker, /mob/living))
+				if(ishuman(speaker))
+					var/mob/living/carbon/human/human = speaker
+					namepart = human.get_alt_name(TRUE)
+				else if(isliving(speaker))
 					var/mob/living/L = speaker
 					namepart = "Unknown [(L.gender == FEMALE) ? "Woman" : "Man"]"
 				else
@@ -131,9 +134,9 @@ GLOBAL_LIST_INIT(freqtospan, list(
 			spanpart1 = "<span class='smallyell'>"
 
 	var/languageicon = ""
-	var/datum/language/D = GLOB.language_datum_instances[message_language]
-	if(istype(D) && D.display_icon(src))
-		languageicon = "[D.get_icon()] "
+	// var/datum/language/D = GLOB.language_datum_instances[message_language]
+	// if(istype(D) && D.display_icon(src))
+	// 	languageicon = "[D.get_icon()] "
 
 	return "[spanpart1][spanpart2][colorpart][freqpart][languageicon][compose_track_href(speaker, namepart)][namepart][compose_job(speaker, message_language, raw_message, radio_freq)][arrowpart][endspanpart][messagepart]"
 

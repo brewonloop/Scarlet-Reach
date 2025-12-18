@@ -9,37 +9,31 @@
 	allowed_races = RACES_ALL_KINDS
 	tutorial = "There are many mouths to feed in town, and most look to you for it. You work under the care of the innkeeper and craft such culinary delights that even the crown stops by from time to time. All the while, you try to get the rest of the staff up to speed as well--before you get too many burn marks on your body from slaving over your hot hearths."
 
-	outfit = /datum/outfit/job/roguetown/cook
+	outfit = /datum/outfit/job/cook
 	display_order = JDO_COOK
 	give_bank_account = 25
 	min_pq = -10
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_PEASANT
 
-	job_traits = list(TRAIT_CICERONE)
+	job_traits = list(TRAIT_CICERONE, TRAIT_PEASANTMILITIA)
 
 	advclass_cat_rolls = list(CTAG_COOK = 2)
 	job_subclasses = list(
 		/datum/advclass/cook
 	)
 
-/datum/job/roguetown/cook/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/cook
 	name = "Cook"
 	tutorial = "There are many mouths to feed in town, and most look to you for it. You work under the care of the innkeeper and craft such culinary delights that even the crown stops by from time to time. All the while, you try to get the rest of the staff up to speed as well--before you get too many burn marks on your body from slaving over your hot hearths."
-	outfit = /datum/outfit/job/roguetown/cook/basic
+	outfit = /datum/outfit/job/cook/basic
 	category_tags = list(CTAG_COOK)
 
 	subclass_stats = list(
-		STATKEY_CON = 1,
-		STATKEY_INT = 1
+		STATKEY_INT = 2,
+		STATKEY_CON = 2,
+		STATKEY_END = 1
 	)
 
 	subclass_skills = list(
@@ -47,17 +41,17 @@
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
-		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_MASTER,
 		/datum/skill/craft/crafting = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/sewing = SKILL_LEVEL_NOVICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/labor/farming = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/cook/basic
+/datum/outfit/job/cook/basic
 	has_loadout = TRUE
 
-/datum/outfit/job/roguetown/cook/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/cook/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	belt = /obj/item/storage/belt/rogue/leather
@@ -76,13 +70,12 @@
 		/obj/item/recipe_book/survival,
 	)
 
-/datum/outfit/job/roguetown/cook/choose_loadout(mob/living/carbon/human/H)
+/datum/outfit/job/cook/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
 	if(H.age == AGE_MIDDLEAGED)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
 		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
 		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
 	if(H.age == AGE_OLD)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
 		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
 		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)

@@ -109,6 +109,7 @@
 	mind.transfer_to(W)
 	skills?.known_skills = list()
 	skills?.skill_experience = list()
+	W.remove_all_languages()
 	W.grant_language(/datum/language/beast)
 
 	W.base_intents = list(INTENT_HELP, INTENT_DISARM, INTENT_GRAB)
@@ -135,7 +136,7 @@
 	W.STACON = 20
 	W.STAEND = 20
 
-	W.AddSpell(new /obj/effect/proc_holder/spell/self/howl/call_of_the_moon)
+	W.AddSpell(new /obj/effect/proc_holder/spell/self/howl)
 	W.AddSpell(new /obj/effect/proc_holder/spell/self/claws)
 
 	ADD_TRAIT(src, TRAIT_NOSLEEP, TRAIT_GENERIC)
@@ -162,6 +163,7 @@
 	ADD_TRAIT(W, TRAIT_LONGSTRIDER, TRAIT_GENERIC)
 	ADD_TRAIT(W, TRAIT_STRENGTH_UNCAPPED, TRAIT_GENERIC)
 	ADD_TRAIT(W, TRAIT_GRABIMMUNE, TRAIT_GENERIC)
+	ADD_TRAIT(W, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
 
 	invisibility = oldinv
 
@@ -185,15 +187,17 @@
 	W.forceMove(get_turf(src))
 
 	REMOVE_TRAIT(W, TRAIT_NOMOOD, TRAIT_GENERIC)
+	REMOVE_TRAIT(W, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
 
 	mind.transfer_to(W)
 
 	var/mob/living/carbon/human/species/werewolf/WA = src
+	W.remove_all_languages()
 	W.copy_known_languages_from(WA.stored_language)
 	skills?.known_skills = WA.stored_skills.Copy()
 	skills?.skill_experience = WA.stored_experience.Copy()
 
-	W.RemoveSpell(new /obj/effect/proc_holder/spell/self/howl/call_of_the_moon)
+	W.RemoveSpell(new /obj/effect/proc_holder/spell/self/howl)
 	W.RemoveSpell(new /obj/effect/proc_holder/spell/self/claws)
 
 	W.regenerate_icons()

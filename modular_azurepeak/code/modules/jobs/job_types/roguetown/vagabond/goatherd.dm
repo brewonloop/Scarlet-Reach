@@ -3,9 +3,10 @@
 	tutorial = "Having lost your idyllic pastoral existence, only a solitary member of your herd now remains as a reminder of what was. Is your sole charge a friend, or is it food? You decide."
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
-	outfit = /datum/outfit/job/roguetown/vagabond/goatherd
+	outfit = /datum/outfit/job/vagabond/goatherd
 	category_tags = list(CTAG_VAGABOND)
 	horse = /mob/living/simple_animal/hostile/retaliate/rogue/goatmale/tame
+	subclass_social_rank = SOCIAL_RANK_PEASANT
 
 	subclass_stats = list(
 		STATKEY_END = 2,
@@ -21,7 +22,7 @@
 		/datum/skill/misc/athletics = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/vagabond/goatherd/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vagabond/goatherd/pre_equip(mob/living/carbon/human/H)
 	..()
 	if(should_wear_femme_clothes(H))
 		armor = /obj/item/clothing/suit/roguetown/shirt/rags

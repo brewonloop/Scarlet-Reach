@@ -42,6 +42,9 @@
 #define BLOOD_VOLUME_BAD 224
 #define BLOOD_VOLUME_SURVIVE 122
 
+/// Blood pool regeneration in non-vampiric living mobs per SSmobs tick. 
+#define BLOODPOL_REGEN 2
+
 //Sizes of mobs, used by mob/living/var/mob_size
 #define MOB_SIZE_TINY 0
 #define MOB_SIZE_SMALL 1
@@ -252,6 +255,8 @@
 #define NPC_AI_RETREAT	3
 #define NPC_AI_HUNT		4
 #define NPC_AI_FLEE		5
+/// Sleep mode (NPC is not processing, excluded from mob subsystem). Remember that NPC_AI_OFF is different from this and supposes *removed* AI (aka player-controlled mob)
+#define NPC_AI_SLEEP    6
 
 //determines if a mob can smash through it
 #define ENVIRONMENT_SMASH_NONE			0
@@ -527,6 +532,7 @@
 #define SKIN_COLOR_DREMA "d16a51"
 #define SKIN_COLOR_CHIR "549ab6"
 #define SKIN_COLOR_VESYL "7a2525"
+#define SKIN_COLOR_KROSEC "f9f9f9"
 
 //GOBLIN SKIN TONES
 #define SKIN_COLOR_OCHRE "968127"
@@ -599,6 +605,12 @@
 //DOLL PAINT COLOR
 #define DOLL_PORCELAIN "ffffff"
 #define DOLL_SIENNA "a0522d"
+#define DOLL_KAZENGUN "dbcca9"
+#define DOLL_SCARLET_REACH "daa99c"
+#define DOLL_WALNUT "ba9882"
+#define DOLL_GLOOMHAVEN "897489"
+#define DOLL_EBON "4e3729"
+
 
 // Pixel shifting
 #define PIXEL_SHIFT_MAXIMUM 16

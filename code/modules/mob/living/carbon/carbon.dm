@@ -51,6 +51,7 @@
 	AdjustKnockdown(levels * 20)
 
 /mob/living/carbon/swap_hand(held_index)
+	SEND_SIGNAL(src, COMSIG_CARBON_SWAPHANDS)
 	if(!held_index)
 		held_index = (active_hand_index % held_items.len)+1
 
@@ -77,8 +78,6 @@
 		H = hud_used.action_intent
 	oactive = FALSE
 	update_a_intents()
-
-	givingto = null
 
 	if(ishuman(src))
 		var/mob/living/carbon/human/H = src
@@ -109,7 +108,7 @@
 	if(istype(I, /obj/item/leash))
 		return I.attack(src, user)
 	if(!user.cmode)
-		var/try_to_fail = !istype(user.rmb_intent, /datum/rmb_intent/weak)
+		var/try_to_fail = istype(user.rmb_intent, /datum/rmb_intent/strong)
 		var/list/possible_steps = list()
 		for(var/datum/surgery_step/surgery_step as anything in GLOB.surgery_steps)
 			if(!surgery_step.name)
@@ -253,7 +252,7 @@
 				var/coin_text = coin.quantity > 1 ? "[coin.quantity] [coin.name]" : coin.name
 				message_admins("[ADMIN_LOOKUPFLW(src)] has thrown [coin_text] at [target] ([AREACOORD(target)])")
 				log_admin("[key_name(src)] has thrown [coin_text] at [target] ([AREACOORD(target)])")
-		
+
 		if(!thrown_speed)
 			thrown_speed = thrown_thing.throw_speed
 		if(!thrown_range)
@@ -368,19 +367,30 @@
 		buckled.user_unbuckle_mob(src,src)
 
 /mob/living/carbon/resist_fire()
-	fire_stacks -= 2.5
-	if(fire_stacks > 10 || !(mobility_flags & MOBILITY_STAND))
+	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks)
+	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks/sunder)
+	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks/divine)
+
+	var/datum/status_effect/fire_handler/fire_stacks/fire_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks)
+	var/datum/status_effect/fire_handler/fire_stacks/sunder_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder)
+	var/datum/status_effect/fire_handler/fire_stacks/divine_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/divine)
+	var/datum/status_effect/fire_handler/fire_stacks/sunder/blessed/blessed_sunder = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
+
+	if(fire_status?.stacks + sunder_status?.stacks + divine_status?.stacks + blessed_sunder?.stacks > 10 || !(mobility_flags & MOBILITY_STAND))
 		Paralyze(50, TRUE, TRUE)
 		spin(32,2)
-		fire_stacks -= 5
-		visible_message("<span class='warning'>[src] rolls on the ground, trying to put [p_them()]self out!</span>")
+		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks)
+		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/sunder)
+		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/divine)
+		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
+		visible_message(span_warning("[src] rolls on the ground, trying to put [p_them()]self out!"))
 	else
-		visible_message("<span class='notice'>[src] pats the flames to extinguish them.</span>")
-		last_special = world.time + CLICK_CD_RESIST
-	sleep(30)
-	if(fire_stacks <= 0)
-		ExtinguishMob(TRUE)
-	return
+		visible_message(span_notice("[src] pats the flames to extinguish them."))
+	addtimer(CALLBACK(src, PROC_REF(check_try_extinguish)), 3 SECONDS)
+
+/mob/living/carbon/proc/check_try_extinguish()
+	if(!has_status_effect(/datum/status_effect/fire_handler))
+		extinguish_mob(TRUE)
 
 /mob/living/carbon/resist_leash()
 	to_chat(src, span_notice("I reach for the hook on my collar..."))
@@ -575,6 +585,7 @@
 
 /mob/living/carbon
 	var/nausea = 0
+	var/bleeding_tier = 0 
 
 /mob/living/carbon/proc/add_nausea(amt)
 	nausea = clamp(nausea + amt, 0, 300)
@@ -687,7 +698,7 @@
 					var/mob/living/carbon/human/parent = vomitrelay.loc
 					var/amt = 5 * parent.physiology.bleed_mod
 					blood_volume = max(blood_volume - amt, 0)
-					GLOB.scarlet_round_stats[STATS_BLOOD_SPILT] += amt
+					record_round_statistic(STATS_BLOOD_SPILT, amt)
 					if(isturf(vomit_source.loc))
 						add_drip_floor(vomit_source.loc, amt)
 					var/vol2use
@@ -702,9 +713,6 @@
 					updatehealth()
 				else
 					bleed(5)
-		else if(src.reagents.has_reagent(/datum/reagent/consumable/ethanol/blazaam, needs_metabolizing = TRUE))
-			if(T)
-				T.add_vomit_floor(src, VOMIT_PURPLE)
 		else
 			if(T)
 				T.add_vomit_floor(src, VOMIT_TOXIC)//toxic barf looks different
@@ -756,7 +764,8 @@
 	for(var/obj/item/bodypart/bodypart as anything in bodyparts) //hardcoded to streamline things a bit
 		if(!(bodypart.body_zone in lethal_zones))
 			continue
-		var/my_burn = abs((bodypart.burn_dam / bodypart.max_damage) * DAMAGE_THRESHOLD_FIRE_CRIT)
+		var/hardcrit_divisor = !mind ? FIRE_HARDCRIT_DIVISOR_MINDLESS : FIRE_HARDCRIT_DIVISOR
+		var/my_burn = abs((bodypart.burn_dam / bodypart.max_damage) * hardcrit_divisor)
 		total_burn = max(total_burn, my_burn)
 		used_damage = max(used_damage, my_burn)
 	if(used_damage < total_tox)
@@ -824,7 +833,7 @@
 
 	if(HAS_TRAIT(src, TRAIT_NOCSHADES))
 		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_NOCSHADES)
-		see_in_dark = max(see_in_dark, 12)	
+		see_in_dark = max(see_in_dark, 12)
 		add_client_colour(/datum/client_colour/nocshaded)
 		overlay_fullscreen("inqvision", /atom/movable/screen/fullscreen/inqvision)
 	else
@@ -841,6 +850,10 @@
 
 	if(HAS_TRAIT(src, TRAIT_ZIZOSIGHT))
 		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_ZIZOVISION)
+		see_in_dark = max(see_in_dark, 8)
+
+	if(HAS_TRAIT(src, TRAIT_UNDERSIGHT))
+		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
 		see_in_dark = max(see_in_dark, 8)
 
 	if(see_override)
@@ -1109,7 +1122,7 @@
 	update_hud_handcuffed()
 	update_mobility()
 
-/mob/living/carbon/fully_heal(admin_revive = FALSE)
+/mob/living/carbon/fully_heal(admin_revive = FALSE, break_restraints = FALSE)
 	if(reagents)
 		reagents.clear_reagents()
 		for(var/addi in reagents.addiction_list)
@@ -1131,17 +1144,18 @@
 		suiciding = FALSE
 		regenerate_limbs()
 		regenerate_organs()
+		if(reagents)
+			reagents.addiction_list = list()
+	if(break_restraints)
 		handcuffed = initial(handcuffed)
 		for(var/obj/item/restraints/R in contents) //actually remove cuffs from inventory
 			qdel(R)
 		update_handcuffed()
-		if(reagents)
-			reagents.addiction_list = list()
 	cure_all_traumas(TRAUMA_RESILIENCE_MAGIC)
 	var/list/wCount = get_wounds()
 	if(wCount.len > 0)
 		heal_wounds(INFINITY)
-	..()
+	. = ..()
 	// heal ears after healing traits, since ears check TRAIT_DEAF trait
 	// when healing.
 	restoreEars()
@@ -1166,7 +1180,7 @@
 	if(organs_amt)
 		to_chat(user, "<span class='notice'>I retrieve some of [src]\'s internal organs!</span>")
 
-/mob/living/carbon/ExtinguishMob(itemz = TRUE)
+/mob/living/carbon/extinguish_mob(itemz = TRUE)
 	if(itemz)
 		for(var/X in get_equipped_items())
 			var/obj/item/I = X
@@ -1378,3 +1392,22 @@
 			to_chat(src, "<span class='warning'>[src] has removed their leash!</span>")
 			src.remove_status_effect(/datum/status_effect/leash_pet)
 
+//port of various procs used for undead from Vanderlin
+/mob/living/carbon/proc/grant_undead_eyes()
+	var/obj/item/organ/eyes/eyes = getorganslot(ORGAN_SLOT_EYES)
+	var/eyecolor = eyes.eye_color
+	var/eyesecond = eyes.second_color
+	if(eyes)
+		eyes.Remove(src,1)
+		QDEL_NULL(eyes)
+
+	eyes = new /obj/item/organ/eyes/night_vision/zombie
+	eyes.eye_color = eyecolor
+	eyes.second_color = eyesecond
+	eyes.Insert(src)
+
+/// skeletonize all limbs of a carbon mob, pass TRUE as an argument if it's lethal, FALSE if it's not.
+/mob/living/carbon/proc/skeletonize(lethal = TRUE)
+	for(var/obj/item/bodypart/B in bodyparts)
+		B.skeletonize(lethal)
+	update_body_parts()

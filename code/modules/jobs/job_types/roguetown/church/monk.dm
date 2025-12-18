@@ -7,9 +7,9 @@
 	spawn_positions = 6
 
 	allowed_races = RACES_ALL_KINDS
-	allowed_patrons = ALL_DIVINE_PATRONS 
+	allowed_patrons = ALL_DIVINE_PATRONS
 	allowed_sexes = list(MALE, FEMALE)
-	outfit = /datum/outfit/job/roguetown/monk
+	outfit = /datum/outfit/job/monk
 	tutorial = "Chores, some more chores- Even more chores. Oh, how the life of a humble acolyte is exhausting… You have faith, but even you know you gave up a life of adventure for that of the security in the Church. Assist the Priest in their daily tasks, maybe today will be the day something interesting happens."
 
 	display_order = JDO_MONK
@@ -17,11 +17,15 @@
 	min_pq = 1 //A step above Churchling, should funnel new players to the churchling role to learn miracles at a more sedate pace
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_MINOR_NOBLE
 
 	//No nobility for you, being a member of the clergy means you gave UP your nobility. It says this in many of the church tutorial texts.
-	virtue_restrictions = list(/datum/virtue/utility/noble)
+	virtue_restrictions = list(
+		/datum/virtue/utility/noble,
+		/datum/virtue/utility/blueblooded,
+	)
 
-	job_traits = list(TRAIT_RITUALIST, TRAIT_GRAVEROBBER)
+	job_traits = list(TRAIT_RITUALIST, TRAIT_GRAVEROBBER, TRAIT_CLERGY)
 	advclass_cat_rolls = list(CTAG_ACOLYTE = 2)
 	job_subclasses = list(
 		/datum/advclass/acolyte
@@ -31,14 +35,26 @@
 	..()
 	if(ishuman(L))
 		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
+		var/prev_real_name = H.real_name
+		var/prev_name = H.name
+		var/honorary = "Brother"
+		if(should_wear_femme_clothes(H))
+			honorary = "Sister"
+		GLOB.chosen_names -= prev_real_name
+		H.real_name = "[honorary] [prev_real_name]"
+		H.name = "[honorary] [prev_name]"
+		GLOB.chosen_names += H.real_name
+
+		for(var/X in peopleknowme)
+			for(var/datum/mind/MF in get_minds(X))
+				if(MF.known_people)
+					MF.known_people -= prev_real_name
+					H.mind.person_knows_me(MF)
 
 /datum/advclass/acolyte
 	name = "Acolyte"
 	tutorial = "Chores, some more chores- Even more chores. Oh, how the life of a humble acolyte is exhausting… You have faith, but even you know you gave up a life of adventure for that of the security in the Church. Assist the Priest in their daily tasks, maybe today will be the day something interesting happens."
-	outfit = /datum/outfit/job/roguetown/monk/basic
+	outfit = /datum/outfit/job/monk/basic
 	category_tags = list(CTAG_ACOLYTE)
 	cmode_music = 'sound/music/combat_holy.ogg'
 
@@ -62,7 +78,7 @@
 		/datum/skill/magic/holy = SKILL_LEVEL_MASTER,
 	)
 
-/datum/outfit/job/roguetown/monk
+/datum/outfit/job/monk
 	name = "Acolyte"
 	jobtype = /datum/job/roguetown/monk
 	job_bitflag = BITFLAG_CHURCH
@@ -80,7 +96,7 @@
 
 	has_loadout = TRUE
 
-/datum/outfit/job/roguetown/monk/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/monk/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	belt = /obj/item/storage/belt/rogue/leather/rope
@@ -88,7 +104,7 @@
 	beltl = /obj/item/storage/keyring/churchie
 	backl = /obj/item/storage/backpack/rogue/satchel
 	backr = /obj/item/rogueweapon/woodstaff
-	backpack_contents = list(/obj/item/ritechalk)
+	backpack_contents = list(/obj/item/ritechalk, /obj/item/rogueweapon/surgery/hammer)
 	switch(H.patron?.type)
 		if(/datum/patron/divine/astrata)
 			head = /obj/item/clothing/head/roguetown/roguehood/astrata
@@ -109,7 +125,7 @@
 			pants = /obj/item/clothing/under/roguetown/tights
 			neck = /obj/item/clothing/neck/roguetown/psicross/abyssor
 			armor = /obj/item/clothing/suit/roguetown/shirt/robe/abyssor
-			head = /obj/item/clothing/head/roguetown/roguehood/abyssor		
+			head = /obj/item/clothing/head/roguetown/roguehood/abyssor
 		if(/datum/patron/divine/dendor) //Dendorites all busted. Play Druid.
 			head = /obj/item/clothing/head/roguetown/dendormask
 			neck = /obj/item/clothing/neck/roguetown/psicross/dendor
@@ -122,6 +138,8 @@
 			armor = /obj/item/clothing/suit/roguetown/shirt/robe/necra
 			shirt = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
 			cloak = /obj/item/clothing/cloak/raincloak/mortus
+			backr = /obj/item/rogueweapon/shovel
+			backpack_contents = list(/obj/item/ritechalk, /obj/item/flashlight/flare/torch/lantern = 1, /obj/item/natural/bundle/stick = 1, /obj/item/necra_censer = 1)
 		if(/datum/patron/divine/pestra)
 			neck = /obj/item/clothing/neck/roguetown/psicross/pestra
 			armor = /obj/item/clothing/suit/roguetown/shirt/robe/phys
@@ -132,7 +150,7 @@
 			mask = /obj/item/clothing/mask/rogue/facemask/steel/pestra_beakmask
 			wrists = /obj/item/clothing/wrists/roguetown/wrappings
 		if(/datum/patron/divine/eora) //Eora content from Stonekeep
-			head = /obj/item/clothing/head/roguetown/eoramask
+			mask = /obj/item/clothing/mask/rogue/eoramask
 			neck = /obj/item/clothing/neck/roguetown/psicross/eora
 			shoes = /obj/item/clothing/shoes/roguetown/sandals
 			armor = /obj/item/clothing/suit/roguetown/shirt/robe/eora
@@ -167,9 +185,9 @@
 			armor = /obj/item/clothing/suit/roguetown/shirt/robe/astrata
 	// -- End of section for god specific bonuses --
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
-	C.grant_miracles(H, cleric_tier = CLERIC_T4, passive_gain = CLERIC_REGEN_MAJOR, start_maxed = TRUE)	//Starts off maxed out.
+	C.grant_miracles(H, cleric_tier = CLERIC_T4, passive_gain = CLERIC_REGEN_MAJOR, start_maxed = TRUE)
 
-/datum/outfit/job/roguetown/monk/basic/choose_loadout(mob/living/carbon/human/H)
+/datum/outfit/job/monk/basic/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
 	if(H.age == AGE_OLD)
 		H.adjust_skillrank(/datum/skill/magic/holy, 1, TRUE)

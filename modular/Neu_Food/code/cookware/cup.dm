@@ -73,55 +73,7 @@
 	desc = "A silver cup, its surface carefully polished."
 	icon_state = "scup"
 	sellprice = 32
-
-/obj/item/reagent_containers/glass/cup/silver/pickup(mob/user)
-	. = ..()
-	var/mob/living/carbon/human/H = user
-	var/datum/antagonist/vampirelord/V_lord = H.mind.has_antag_datum(/datum/antagonist/vampirelord/)
-	var/datum/antagonist/werewolf/W = H.mind.has_antag_datum(/datum/antagonist/werewolf/)
-	if(ishuman(H))
-		if(H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-			to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(V_lord)
-			if(V_lord.vamplevel < 4 && !H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-				to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-				H.Knockdown(10)
-				H.adjustFireLoss(25)
-		if(W && W.transformed == TRUE)
-			to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(HAS_TRAIT(H, TRAIT_HOLLOW_LIFE))
-			to_chat(H, span_userdanger("I can't pick up the silver, for I am one of the damned!"))
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-			H.Knockdown(5)
-			H.Paralyze(5)
-
-
-/obj/item/reagent_containers/glass/cup/silver/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	. = ..()
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		if(H.dna && H.dna.species)
-			if(istype(H.dna.species, /datum/species/werewolf))
-				M.Knockdown(10)
-				M.Paralyze(10)
-				M.adjustFireLoss(25)
-				H.fire_act(1,10)
-				to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-				return FALSE
-	if(M.mind && M.mind.has_antag_datum(/datum/antagonist/vampirelord))
-		M.adjustFireLoss(25)
-		M.fire_act(1,10)
-		to_chat(M, span_userdanger("I can't pick up the silver, it is my BANE!"))
-		return FALSE
+	is_silver = TRUE
 
 /obj/item/reagent_containers/glass/cup/golden
 	name = "golden goblet"
@@ -184,3 +136,122 @@
 	desc = "A fancy tea cup made out of ceramic. Used to serve tea."
 	icon_state = "cup_fancy"
 	sellprice = 12
+
+/obj/item/reagent_containers/glass/cup/carved
+	name = "carved cup"
+	desc = "You shouldn't be seeing this."
+	dropshrink = 1
+	icon_state = "agoblet"
+	sellprice = 0
+
+/obj/item/reagent_containers/glass/cup/carved/jade
+	name = "joapstone cup"
+	desc = "A simple cup carved out of joapstone."
+	dropshrink = 1
+	icon_state = "cup_jade"
+	sellprice = 55
+
+/obj/item/reagent_containers/glass/cup/carved/turq
+	name = "ceruleabaster cup"
+	desc = "A simple cup carved out of ceruleabaster."
+	dropshrink = 1
+	icon_state = "cup_turq"
+	sellprice = 80
+
+/obj/item/reagent_containers/glass/cup/carved/amber
+	name = "petriamber cup"
+	desc = "A simple cup carved out of petriamber."
+	dropshrink = 1
+	icon_state = "cup_amber"
+	sellprice = 55
+
+/obj/item/reagent_containers/glass/cup/carved/coral
+	name = "aoetal cup"
+	desc = "A simple cup carved out of aoetal."
+	dropshrink = 1
+	icon_state = "cup_coral"
+	sellprice = 65
+
+/obj/item/reagent_containers/glass/cup/carved/onyxa
+	name = "onyxa cup"
+	desc = "A simple cup carved out of onyxa."
+	dropshrink = 1
+	icon_state = "cup_onyxa"
+	sellprice = 35
+
+/obj/item/reagent_containers/glass/cup/carved/shell
+	name = "shell cup"
+	desc = "A simple cup carved out of shell."
+	dropshrink = 1
+	icon_state = "cup_shell"
+	sellprice = 15
+
+/obj/item/reagent_containers/glass/cup/carved/opal
+	name = "opaloise cup"
+	desc = "A simple cup carved out of opaloise."
+	dropshrink = 1
+	icon_state = "cup_opal"
+	sellprice = 85
+
+/obj/item/reagent_containers/glass/cup/carved/rose
+	name = "rosellusk cup"
+	desc = "A simple cup carved out of rosellusk."
+	dropshrink = 1
+	icon_state = "cup_rose"
+	sellprice = 20
+
+/obj/item/reagent_containers/glass/cup/carved/jadefancy
+	name = "fancy joapstone cup"
+	desc = "A fancy cup carved out of joapstone."
+	dropshrink = 1
+	icon_state = "fancycup_jade"
+	sellprice = 65
+
+/obj/item/reagent_containers/glass/cup/carved/turqfancy
+	name = "fancy ceruleabaster cup"
+	desc = "A fancy cup carved out of ceruleabaster."
+	dropshrink = 1
+	icon_state = "fancycup_turq"
+	sellprice = 90
+
+/obj/item/reagent_containers/glass/cup/carved/opalfancy
+	name = "fancy opaloise cup"
+	desc = "A fancy cup carved out of opaloise."
+	dropshrink = 1
+	icon_state = "fancycup_opal"
+	sellprice = 95
+
+/obj/item/reagent_containers/glass/cup/carved/coralfancy
+	name = "fancy aoetal cup"
+	desc = "A fancy cup carved out of aoetal."
+	dropshrink = 1
+	icon_state = "fancycup_coral"
+	sellprice = 75
+
+/obj/item/reagent_containers/glass/cup/carved/amberfancy
+	name = "fancy petriamber cup"
+	desc = "A fancy cup carved out of petriamber."
+	dropshrink = 1
+	icon_state = "fancycup_amber"
+	sellprice = 65
+
+/obj/item/reagent_containers/glass/cup/carved/shellfancy
+	name = "fancy shell cup"
+	desc = "A fancy cup carved out of shell."
+	dropshrink = 1
+	icon_state = "fancycup_shell"
+	sellprice = 25
+
+/obj/item/reagent_containers/glass/cup/carved/rosefancy
+	name = "fancy rosellusk cup"
+	desc = "A fancy cup carved out of rosellusk."
+	dropshrink = 1
+	icon_state = "fancycup_rose"
+	sellprice = 30
+
+/obj/item/reagent_containers/glass/cup/carved/onyxafancy
+	name = "fancy onyxa cup"
+	desc = "A fancy cup carved out of onyxa."
+	dropshrink = 1
+	icon_state = "fancycup_onyxa"
+	sellprice = 45

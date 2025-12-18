@@ -62,14 +62,30 @@ GLOBAL_LIST_INIT(stress_messages, world.file2list("strings/rt/stress_messages.tx
 		remove_stress(event_type)
 
 /mob/living/carbon/update_stress()
-	// Handle expiration
+	// Handle expiration and accumulate our new stress status in the same operation
+	if (!client) // no reason to fire stress at all on npcs
+		return
+	if (stat != CONSCIOUS) // oblivion preserves our stress, for better or worse. (read: life optimizations weewoo)
+		return
+	var/new_stress = 0
 	for(var/stressor_type in stressors)
 		var/datum/stressevent/event = stressors[stressor_type]
+		var/stress_amt = event.get_stress(src)
 		if(event.time_added + event.timer > world.time)
+			new_stress += stress_amt
 			continue
 		remove_stress(stressor_type)
-	// Update stress status and prompts
-	var/new_stress = get_stress_amount()
+
+	// move bleeding stress handling here
+	if (bleed_rate)
+		add_stress(/datum/stressevent/bleeding)
+	else
+		remove_stress(/datum/stressevent/bleeding)
+
+	// Non-vampiric bloodpool regen.
+	// We assume that in non-vampires bloodpool represents "usable" blood that is regenerated slower than blood_volume
+	if(!clan && blood_volume > BLOOD_VOLUME_SAFE)
+		adjust_bloodpool(BLOODPOL_REGEN, FALSE)
 
 	var/ascending = (new_stress > oldstress)
 
@@ -225,16 +241,10 @@ GLOBAL_LIST_INIT(stress_messages, world.file2list("strings/rt/stress_messages.tx
 
 
 /mob/living/carbon/get_stress_amount()
-	if(HAS_TRAIT(src, TRAIT_NOMOOD))
-		return 0
 	var/total_stress = 0
 	for(var/stressor_type in stressors)
 		var/datum/stressevent/event = stressors[stressor_type]
 		var/stress_amt = event.get_stress(src)
-		if(stress_amt > 0 && HAS_TRAIT(src, TRAIT_BAD_MOOD))
-			stress_amt *= 2
-		if(stress_amt > 0 && HAS_TRAIT(src, TRAIT_EORAN_SERENE))
-			stress_amt = (stress_amt * -1)	//We make the bad things feel good.
 		total_stress += stress_amt
 	return total_stress
 

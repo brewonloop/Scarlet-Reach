@@ -156,9 +156,6 @@
 		BB.bonus_accuracy += (user.get_skill_level(/datum/skill/combat/crossbows) * 5) // +5 per XBow level.
 		BB.damage *= damfactor
 	cocked = FALSE
-	if(user.has_status_effect(/datum/status_effect/buff/clash) && ishuman(user))
-		var/mob/living/carbon/human/H = user
-		H.bad_guard(span_warning("I can't focus on my Guard and loose bolts! This drains me!"), cheesy = TRUE)
 	..()
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/update_icon()
@@ -198,3 +195,13 @@
 	movingreload = FALSE
 	slot_flags = ITEM_SLOT_BACK | ITEM_SLOT_HIP
 
+
+/obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/slurbow/old //slightly shittier slurbow for monster hunters
+	name = "old slurbow"
+	desc = "A lighter weight crossbow with a distinct barrel shroud holding the bolt in place. Light enough to arm by hand. <br>They're popular among among highwaymen and the patrolling lamplighters of Otava. <br>This one has seen better daes."
+	chargingspeed = 20
+	damfactor = 0.5
+	accfactor = 1.1
+	reloadtime = 25
+	hasloadedsprite = TRUE
+	movingreload = FALSE

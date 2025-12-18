@@ -34,6 +34,11 @@
 	cost = 15
 	contains = list(/obj/item/storage/backpack/rogue/satchel)
 
+/datum/supply_pack/rogue/blackmarket_tools/short_satchel
+	name = "Short Satchel"
+	cost = 10
+	contains = list(/obj/item/storage/backpack/rogue/satchel/short)
+
 /datum/supply_pack/rogue/blackmarket_tools/bedroll
 	name = "Bedroll"
 	cost = 15
@@ -62,7 +67,7 @@
 /datum/supply_pack/rogue/blackmarket_tools/prlegl
 	name = "Prosthetic Wood Leg (L)"
 	cost = 15
-	contains = list(/obj/item/bodypart/l_leg/prosthetic)
+	contains = list(/obj/item/bodypart/l_leg/prosthetic/woodleft)
 
 /datum/supply_pack/rogue/blackmarket_tools/prlegr
 	name = "Prosthetic Wood Leg (R)"

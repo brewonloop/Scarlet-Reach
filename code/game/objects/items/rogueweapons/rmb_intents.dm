@@ -3,6 +3,8 @@
 	var/desc = ""
 	var/icon_state = ""
 	var/adjacency = TRUE
+	/// Whether the rclick will try to get turfs as target.
+	var/prioritize_turfs = FALSE
 
 /mob/living/carbon/human
 	var/bait_stacks
@@ -10,6 +12,9 @@
 /mob/living/carbon/human/on_cmode()
 	if(!cmode)	//We just toggled it off.
 		addtimer(CALLBACK(src, PROC_REF(purge_bait)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+		addtimer(CALLBACK(src, PROC_REF(expire_peel)), 60 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+	if(!HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
+		filtered_balloon_alert(TRAIT_COMBAT_AWARE, (cmode ? ("<i><font color = '#831414'>Tense</font></i>") : ("<i><font color = '#c7c6c6'>Relaxed</font></i>")), y_offset = 32)
 
 /mob/living/carbon/human/RightClickOn(atom/A, params)
 	if(rmb_intent && !rmb_intent.adjacency && !istype(A, /obj/item/clothing) && cmode && !istype(src, /mob/living/carbon/human/species/skeleton) && !istype(A, /obj/item/quiver) && !istype(A, /obj/item/storage))
@@ -17,9 +22,36 @@
 		if(held && istype(held, /obj/item))
 			var/obj/item/I = held
 			if(I.associated_skill)
-				rmb_intent.special_attack(src, A)
+				rmb_intent.special_attack(src, ismob(A) ? A : rmb_intent.prioritize_turfs ? get_turf(A) : get_foe_from_turf(get_turf(A)))
 	else
 		. = ..()
+
+/// Used for "directional" style rmb attacks on a turf, prioritizing standing targets
+/mob/living/proc/get_foe_from_turf(turf/T)
+	if(!istype(T))
+		return
+
+	var/list/mob/living/foes = list()
+	for(var/mob/living/foe_in_turf in T)
+		if(foe_in_turf == src)
+			continue
+
+		var/foe_prio = rand(4, 8)
+		if(foe_in_turf.mobility_flags & MOBILITY_STAND)
+			foe_prio += 10
+		else if(foe_in_turf.stat != CONSCIOUS)
+			foe_prio = 2
+		else if(foe_in_turf.surrendering)
+			foe_prio = -5
+
+		foes[foe_in_turf] = foe_prio
+
+	if(!foes.len)
+		return null
+
+	if(foes.len > 1)
+		sortTim(foes, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
+	return foes[1]
 
 /datum/rmb_intent/proc/special_attack(mob/living/user, atom/target)
 	return
@@ -51,13 +83,19 @@
 	if(HT.has_status_effect(/datum/status_effect/debuff/baited) || user.has_status_effect(/datum/status_effect/debuff/baitcd))
 		return	//We don't do anything if either of us is affected by bait statuses
 
+	if(user.STAINT < 8) //We don't want this happening if their intelligence is 7 or below.
+		to_chat(HU, span_danger("Argh! This is too complicated, I've made a fool of myself!"))
+		HU.stamina_add(HU.max_stamina * 0.2)
+		HU.emote("huh")
+		return
+
 	HU.visible_message(span_danger("[HU] baits an attack from [HT]!"))
 	HU.apply_status_effect(/datum/status_effect/debuff/baitcd)
 	HU.stamina_add(HU.max_stamina * 0.2)
 
-	if((target_zone != user_zone) || ((target_zone == BODY_ZONE_CHEST) || (user_zone == BODY_ZONE_CHEST))) //Our zones match and it's not the chest//Our zones do not match, or we were targeting chest
-		to_chat(HU, span_danger("It didn't work! Their footing returned!"))
-		to_chat(HT, span_notice("I fooled him! I've regained my footing!"))
+	if((target_zone != user_zone) || ((target_zone == BODY_ZONE_CHEST) || (user_zone == BODY_ZONE_CHEST))) //Our zones match and it's not the chest | Our zones do not match, or we were targeting chest
+		to_chat(HU, span_danger("It didn't work! [HT.p_their(TRUE)] footing returned!"))
+		to_chat(HT, span_notice("I fooled [HU.p_them()]! I've regained my footing!"))
 		HU.emote("groan")
 		HT.bait_stacks = 0
 		return
@@ -84,15 +122,15 @@
 		HT.emote("huh")
 		HU.purge_peel(BAIT_PEEL_REDUCTION)
 		HU.changeNext_move(0.1 SECONDS, override = TRUE)
-		to_chat(HU, span_notice("[HT] fell for my bait <b>perfectly</b>! One more!"))
-		to_chat(HT, span_danger("I fall for [HU]'s bait <b>perfectly</b>! I'm losing my footing! <b>I can't let this happen again!</b>"))
+		to_chat(HU, span_notice("[HT.p_they(TRUE)] fell for my bait <b>perfectly</b>! One more!"))
+		to_chat(HT, span_danger("I fall for [HU.p_their()]'s bait <b>perfectly</b>! I'm losing my footing! <b>I can't let this happen again!</b>"))
 	
 	if(HU.has_duelist_ring() && HT.has_duelist_ring() || HT.bait_stacks >= 2)	//We're explicitly (hopefully non-lethally) dueling. Flavor.
 		HT.emote("gasp")
 		HT.OffBalance(2 SECONDS)
 		HT.Immobilize(2 SECONDS)
-		to_chat(HU, span_notice("[HT] fell for it again and is off-balanced! NOW!"))
-		to_chat(HT, span_danger("I fall for [HU]'s bait <b>perfectly</b>! My balance is GONE!</b>"))
+		to_chat(HU, span_notice("[HT.p_they(TRUE)] fell for it again and is off-balanced! NOW!"))
+		to_chat(HT, span_danger("I fall for [HU.p_their()] bait <b>perfectly</b>! My balance is GONE!</b>"))
 		HT.bait_stacks = 0
 
 
@@ -100,8 +138,8 @@
 		return
 
 	HT.stop_pulling()
-	to_chat(HU, span_notice("[HT] fell for my dirty trick! I am loose!"))
-	to_chat(HT, span_danger("I fall for [HU]'s dirty trick! My hold is broken!"))
+	to_chat(HU, span_notice("[HT.p_they(TRUE)] fell for my dirty trick! I am loose!"))
+	to_chat(HT, span_danger("I fall for [HU.p_their()] dirty trick! My hold is broken!"))
 	HU.OffBalance(2 SECONDS)
 	HT.OffBalance(2 SECONDS)
 	playsound(user, 'sound/combat/riposte.ogg', 100, TRUE)
@@ -110,6 +148,28 @@
 	name = "strong"
 	desc = "Your attacks have +1 strength but use more stamina. Higher critrate with brutal attacks. Intentionally fails surgery steps."
 	icon_state = "rmbstrong"
+	adjacency = FALSE
+	prioritize_turfs = TRUE
+
+/datum/rmb_intent/strong/special_attack(mob/living/user, atom/target)
+	if(!user)
+		return
+	if(user.incapacitated())
+		return
+	if(!user.mind)
+		return
+	if(user.has_status_effect(/datum/status_effect/debuff/specialcd))
+		return
+
+	var/obj/item/rogueweapon/W = user.get_active_held_item()
+	if(istype(W, /obj/item/rogueweapon) && W.special)
+		var/skillreq = W.associated_skill
+		if(W.special.custom_skill)
+			skillreq = W.special.custom_skill
+		if(user.get_skill_level(skillreq) < SKILL_LEVEL_JOURNEYMAN)
+			to_chat(user, span_info("I'm not knowledgeable enough in the arts of this weapon to use this."))
+			return
+		W.special.deploy(user, W, target)
 
 /datum/rmb_intent/swift
 	name = "swift"
@@ -149,10 +209,14 @@
 	if(I)
 		if(I.associated_skill)
 			ourskill = user.get_skill_level(I.associated_skill)
+			if(I.item_flags & PEASANT_WEAPON && HAS_TRAIT(user, TRAIT_PEASANTMILITIA))
+				ourskill += 1
 		if(L.mind)
 			I = L.get_active_held_item()
 			if(I?.associated_skill)
 				theirskill = L.get_skill_level(I.associated_skill)
+				if(I.item_flags & PEASANT_WEAPON && HAS_TRAIT(L, TRAIT_PEASANTMILITIA))
+					theirskill += 1
 	perc += (ourskill - theirskill)*15 	//skill is of the essence
 	perc += (user.STAINT - L.STAINT)*10	//but it's also mostly a mindgame
 	skill_factor = (ourskill - theirskill)/2
@@ -166,19 +230,19 @@
 	if(!prob(perc)) //feint intent increases the immobilize duration significantly
 		playsound(user, 'sound/combat/feint.ogg', 100, TRUE)
 		if(user.client?.prefs.showrolls)
-			to_chat(user, span_warning("[L] did not fall for my feint... [perc]%"))
+			to_chat(user, span_warning("[L.p_they(TRUE)] did not fall for my feint... [perc]%"))
 		return
 
 	if(L.has_status_effect(/datum/status_effect/buff/clash))
 		L.remove_status_effect(/datum/status_effect/buff/clash)
-		to_chat(user, span_notice("[L] had [L.p_their()] Guard disrupted!"))
+		to_chat(user, span_notice("[L.p_their(TRUE)] Guard disrupted!"))
 	L.apply_status_effect(/datum/status_effect/debuff/exposed, 7.5 SECONDS)
 	L.apply_status_effect(/datum/status_effect/debuff/clickcd, max(1.5 SECONDS + skill_factor, 2.5 SECONDS))
 	L.Immobilize(0.5 SECONDS)
 	L.stamina_add(L.stamina * 0.1)
 	L.Slowdown(2)
-	to_chat(user, span_notice("[L] fell for my feint attack!"))
-	to_chat(L, span_danger("I fall for [user]'s feint attack!"))
+	to_chat(user, span_notice("[L.p_they(TRUE)] fell for my feint attack!"))
+	to_chat(L, span_danger("I fall for [user.p_their()] feint attack!"))
 	playsound(user, 'sound/combat/riposte.ogg', 100, TRUE)
 
 
@@ -194,7 +258,7 @@
 			return 
 		if(user.r_grab || user.l_grab || length(user.grabbedby)) //Not usable while grabs are in play.
 			return
-		if(!(user.mobility_flags & MOBILITY_STAND) || user.IsImmobilized() || user.IsOffBalanced()) //Not usable while we're offbalanced, immobilized or on the ground.
+		if(user.IsImmobilized() || user.IsOffBalanced()) //Not usable while we're offbalanced or immobilized
 			return
 		if(user.m_intent == MOVE_INTENT_RUN)
 			to_chat(user, span_warning("I can't focus on this while running."))

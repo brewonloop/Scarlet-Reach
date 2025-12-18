@@ -4,12 +4,14 @@
 	accept_hand = FALSE
 	implements = list(
 		TOOL_SCALPEL = 80,
+		TOOL_IMPROVISED_SCALPEL = 70,
 		TOOL_SAW = 60,
 		TOOL_IMPROVISED_SAW = 50,
 		TOOL_SHARP = 40,
 	)
 	target_mobtypes = list(/mob/living/carbon/human, /mob/living/carbon/monkey)
 	surgery_flags = SURGERY_INCISED
+	surgery_flags_blocked = SURGERY_CONSTRUCT
 	skill_min = SKILL_LEVEL_NOVICE
 	skill_median = SKILL_LEVEL_JOURNEYMAN
 

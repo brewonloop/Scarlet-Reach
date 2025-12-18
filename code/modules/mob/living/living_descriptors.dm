@@ -12,6 +12,11 @@
 	if(!length(mob_descriptors))
 		mob_descriptors = null
 
+/mob/living/proc/get_descriptor_type(var/desired_type)
+	for(var/datum/mob_descriptor/descriptor as anything in mob_descriptors)
+		if(ispath(descriptor, desired_type))
+			return MOB_DESCRIPTOR(descriptor)
+
 /mob/living/proc/clear_mob_descriptors()
 	mob_descriptors = null
 
@@ -217,8 +222,14 @@
 	string = replacetext(string, "%THEY%", they_replace)
 	if(they_replace == "they")
 		string = replacetext(string, "%HAVE%", "have")
+		string = replacetext(string, "%ARE%", "are")
+		string = replacetext(string, "%LOOK%", "look")
+		string = replacetext(string, "%SPEAK%", "speak with")
 	else
 		string = replacetext(string, "%HAVE%", "has")
+		string = replacetext(string, "%ARE%", "is")
+		string = replacetext(string, "%LOOK%", "looks")
+		string = replacetext(string, "%SPEAK%", "speaks with")
 	string = replacetext(string, "%MAN%", man_replace)
 	string = replacetext(string, "%HIM%", him_replace)
 	string = capitalize(string)

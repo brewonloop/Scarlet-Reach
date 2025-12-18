@@ -11,14 +11,15 @@
 	allowed_races = RACES_ALL_KINDS
 	tutorial = "You are a member of the Scarlet Reach Guild of Crafts, a massive guild formed to represent the interests of all craftsmen in the township of Scarlet Reach.\
 	As a Guildsman, you hail from the three most important constituent guilds: The Smith's Guild, the Artificer's Guild, and the Architect's Guild. The Guildsmaster has sway over you, but it is not absolute."
-	outfit = /datum/outfit/job/roguetown/guildsman
+	outfit = /datum/outfit/job/guildsman
 	selection_color = JCOLOR_YEOMAN
 	display_order = JDO_GUILDSMAN
 	give_bank_account = 15
-	min_pq = 0
+	min_pq = 5
 	max_pq = null
 	round_contrib_points = 3
 	advjob_examine = TRUE // So that everyone know which subjob they have picked
+	social_rank = SOCIAL_RANK_YEOMAN
 
 	job_subclasses = list(
 		/datum/advclass/guildsman/artificer,
@@ -26,22 +27,14 @@
 		/datum/advclass/guildsman/architect
 	)
 
-/datum/job/roguetown/guildsman/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	. = ..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/guildsman/blacksmith
 	name = "Guild Blacksmith"
 	tutorial = "You've studied for many yils under quite a number of master smiths. Whether it's cookware or tools of war, you're unmatched at the art of bending metal to your will."
-	outfit = /datum/outfit/job/roguetown/guildsman/blacksmith
+	outfit = /datum/outfit/job/guildsman/blacksmith
 
 	category_tags = list(CTAG_GUILDSMEN)
 
-	traits_applied = list(TRAIT_TRAINED_SMITH)
+	traits_applied = list(TRAIT_TRAINED_SMITH, TRAIT_MEDIUMARMOR, TRAIT_PEASANTMILITIA)
 	subclass_stats = list(
 		STATKEY_STR = 2,
 		STATKEY_END = 2,
@@ -63,7 +56,7 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/guildsman/blacksmith/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/guildsman/blacksmith/pre_equip(mob/living/carbon/human/H)
 	..()
 	head = /obj/item/clothing/head/roguetown/hatfur
 	gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves/blacksmith
@@ -101,10 +94,10 @@
 	tutorial = "You are an Artificer, oft known by the longer name of Artificer-Enchanter. You have basic training in the arts of smithing, and can substitute for a blacksmith's work if needed.\
 	But your true calling is the creation and enchantment of magical items, alongside feats of engineering, creating mechanical and magical wonders whose art of creation has been passed down\
 	from a certain elven Artificer..."
-	outfit = /datum/outfit/job/roguetown/guildsman/artificer
+	outfit = /datum/outfit/job/guildsman/artificer
 	category_tags = list(CTAG_GUILDSMEN)
 
-	traits_applied = list(TRAIT_ARCYNE_T1)
+	traits_applied = list(TRAIT_ARCYNE_T1, TRAIT_PEASANTMILITIA)
 	subclass_stats = list(
 		STATKEY_INT = 3,
 		STATKEY_END = 2,
@@ -118,21 +111,21 @@
 		/datum/skill/combat/maces = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/crafting = SKILL_LEVEL_EXPERT,
-		/datum/skill/craft/engineering = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/craft/engineering = SKILL_LEVEL_MASTER,
 		/datum/skill/craft/blacksmithing = SKILL_LEVEL_APPRENTICE, // Artificer makes for a crappy substitute blacksmith but have the same spread
 		/datum/skill/craft/armorsmithing = SKILL_LEVEL_APPRENTICE, 
 		/datum/skill/craft/weaponsmithing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/magic/arcane = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/climbing = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_EXPERT,
-		/datum/skill/craft/smelting = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/smelting = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/traps = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/ceramics = SKILL_LEVEL_JOURNEYMAN,	//Just for basic pottery/glass stuff.
 	)
 
-/datum/outfit/job/roguetown/guildsman/artificer/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/guildsman/artificer/pre_equip(mob/living/carbon/human/H)
 	..()
 
 	head = /obj/item/clothing/head/roguetown/articap
@@ -145,7 +138,6 @@
 	belt = /obj/item/storage/belt/rogue/leather
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/mid
 	beltl = /obj/item/roguekey/crafterguild
-	mask = /obj/item/clothing/mask/rogue/spectacles/golden
 	backl = /obj/item/storage/backpack/rogue/backpack
 	backpack_contents = list(
 						/obj/item/rogueweapon/hammer/steel = 1,
@@ -156,7 +148,9 @@
 						/obj/item/recipe_book/builder = 1,
 						/obj/item/recipe_book/survival = 1,
 						/obj/item/recipe_book/magic = 1,
-						/obj/item/chalk = 1,
+						/obj/item/clothing/mask/rogue/spectacles/golden = 1,
+						/obj/item/contraption/linker,
+						/obj/item/ritechalk = 1,
 						)
 	// Not a real mage, no free spell point. Take Arcyne Potential if you want it.
 	if(H.mind)
@@ -167,10 +161,10 @@
 	name = "Guild Architect"
 	tutorial = "You are a Guild Architect, a master of the art of building and construction. You build castles, fortifications and entire cities with your own hands. And you know how to source those materials yourself too.\
 	When there is no construction work around, your fellow Guildsmen appreciate your help with gathering materials."
-	outfit = /datum/outfit/job/roguetown/guildsman/architect
+	outfit = /datum/outfit/job/guildsman/architect
 	category_tags = list(CTAG_GUILDSMEN)
 
-	traits_applied = list()
+	traits_applied = list(TRAIT_PEASANTMILITIA)
 	subclass_stats = list(
 		STATKEY_INT = 2,
 		STATKEY_END = 2,
@@ -198,7 +192,7 @@
 		/datum/skill/misc/ceramics = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/guildsman/architect/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/guildsman/architect/pre_equip(mob/living/carbon/human/H)
 	..()
 
 	head = /obj/item/clothing/head/roguetown/hatblu
@@ -227,3 +221,5 @@
 						/obj/item/recipe_book/survival = 1,
 						/obj/item/roguekey/crafterguild = 1
 						)
+	ADD_TRAIT(H, TRAIT_MASTER_CARPENTER, TRAIT_GENERIC)		
+	ADD_TRAIT(H, TRAIT_MASTER_MASON, TRAIT_GENERIC)	

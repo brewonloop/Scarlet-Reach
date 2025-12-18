@@ -8,19 +8,22 @@
 	spawn_positions = 2
 	f_title = "Princess"
 	allowed_races = RACES_NOBILITY_ELIGIBLE_UP //Maybe a system to force-pick lineage based on king and queen should be implemented. (No it shouldn't.)
+	allowed_patrons = NON_PSYDON_PATRONS
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT)
 	advclass_cat_rolls = list(CTAG_HEIR = 20)
+	social_rank = SOCIAL_RANK_ROYAL
 
 	tutorial = "You've never felt the gnawing of the winter, never known the bite of hunger and certainly have never known a honest day's work. You are as free as any bird in the sky, and you may revel in your debauchery for as long as your parents remain upon the throne: But someday you'll have to grow up, and that will be the day your carelessness will cost you more than a few mammons."
 
 	display_order = JDO_PRINCE
 	give_bank_account = 30
 	noble_income = 20
-	min_pq = 1
+	min_pq = 7
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/combat_noble.ogg'
+	allowed_patrons = NON_PSYDON_PATRONS		//Same reason as lord. See Lord.
 
 	job_traits = list(TRAIT_NOBLE)
 	job_subclasses = list(
@@ -30,23 +33,16 @@
 		/datum/advclass/heir/inbred,
 	)
 
-/datum/job/roguetown/prince/after_spawn(mob/living/H, mob/M, latejoin)
-	. = ..()
-	if(ishuman(H))
-		var/mob/living/carbon/human/Q = H
-		Q.advsetup = 1
-		Q.invisibility = INVISIBILITY_MAXIMUM
-		Q.become_blind("advsetup")
-
-
-/datum/outfit/job/roguetown/heir/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/heir/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.verbs |= /mob/living/carbon/human/proc/declarechampion
+
+	change_origin(H, /datum/virtue/origin/racial/reach, "Royal line")
 
 /datum/advclass/heir/daring
 	name = "Daring Twit"
 	tutorial = "You're a somebody, someone important. It only makes sense you want to make a name for yourself, to gain your own glory so people see how great you really are beyond your bloodline. Plus, if you're beloved by the people for your exploits you'll be chosen! Probably. Shame you're as useful and talented as a squire, despite your delusions to the contrary."
-	outfit = /datum/outfit/job/roguetown/heir/daring
+	outfit = /datum/outfit/job/heir/daring
 	category_tags = list(CTAG_HEIR)
 
 	traits_applied = list(TRAIT_MEDIUMARMOR)
@@ -78,7 +74,7 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/heir/daring/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/heir/daring/pre_equip(mob/living/carbon/human/H)
 	..()
 
 	// Equipment choice - only affects clothing/gear, not skills
@@ -94,7 +90,7 @@
 		belt = /obj/item/storage/belt/rogue/leather
 		l_hand = /obj/item/rogueweapon/sword/sabre
 		beltl = /obj/item/rogueweapon/scabbard/sword
-		beltr = /obj/item/storage/keyring/heir
+		beltr = /obj/item/storage/keyring/heir/warrior
 		neck = /obj/item/storage/belt/rogue/pouch/coins/rich
 		backr = /obj/item/storage/backpack/rogue/satchel
 	else
@@ -107,7 +103,7 @@
 			shirt = /obj/item/clothing/suit/roguetown/shirt/dress/royal/princess
 		head = /obj/item/clothing/head/roguetown/circlet
 		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
-		beltr = /obj/item/storage/keyring/heir
+		beltr = /obj/item/storage/keyring/heir/warrior
 		beltl = /obj/item/rogueweapon/huntingknife/idagger/steel/special
 		backr = /obj/item/storage/backpack/rogue/satchel
 		shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
@@ -117,7 +113,7 @@
 /datum/advclass/heir/bookworm
 	name = "Introverted Bookworm"
 	tutorial = "Despite your standing, sociability is not your strong suit, and you have kept mostly to yourself and your books. This hardly makes you a favourite among the lords and ladies of the court, and an exit from your room is often met with amusement from nobility and servants alike. But maybe... just maybe, some of your reading interests may be bearing fruit."
-	outfit = /datum/outfit/job/roguetown/heir/bookworm
+	outfit = /datum/outfit/job/heir/bookworm
 	category_tags = list(CTAG_HEIR)
 
 	traits_applied = list(TRAIT_ARCYNE_T2, TRAIT_MAGEARMOR)
@@ -139,7 +135,7 @@
 		/datum/skill/combat/knives = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/heir/bookworm/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/heir/bookworm/pre_equip(mob/living/carbon/human/H)
 	..()
 	if(should_wear_masc_clothes(H))
 		pants = /obj/item/clothing/under/roguetown/tights/random
@@ -149,7 +145,7 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/royal/princess
 	head = /obj/item/clothing/head/roguetown/circlet
 	belt = /obj/item/storage/belt/rogue/leather/cloth/lady
-	beltr = /obj/item/storage/keyring/heir
+	beltr = /obj/item/storage/keyring/heir/mage
 	beltl = /obj/item/rogueweapon/huntingknife/idagger/steel/special
 	backr = /obj/item/storage/backpack/rogue/satchel
 	shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
@@ -159,7 +155,7 @@
 /datum/advclass/heir/aristocrat
 	name = "Sheltered Aristocrat"
 	tutorial = "Life has been kind to you; you've an entire keep at your disposal, servants to wait on you, and a whole retinue of guards to guard you. You've nothing to prove; just live the good life and you'll be a lord someday, too. A lack of ambition translates into a lacking skillset beyond schooling, though, and your breaks from boredom consist of being a damsel or court gossip."
-	outfit = /datum/outfit/job/roguetown/heir/aristocrat
+	outfit = /datum/outfit/job/heir/aristocrat
 	category_tags = list(CTAG_HEIR)
 
 	traits_applied = list(TRAIT_SEEPRICES_SHITTY, TRAIT_GOODLOVER)
@@ -184,7 +180,7 @@
 		/datum/skill/misc/sewing = SKILL_LEVEL_JOURNEYMAN,
 	)
 
-/datum/outfit/job/roguetown/heir/aristocrat/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/heir/aristocrat/pre_equip(mob/living/carbon/human/H)
 	..()
 	head = /obj/item/clothing/head/roguetown/circlet
 	belt = /obj/item/storage/belt/rogue/leather
@@ -208,7 +204,7 @@
 /datum/advclass/heir/inbred
 	name = "Inbred wastrel"
 	tutorial = "Your bloodline ensures Psydon smiles upon you by divine right, the blessing of nobility... until you were born, anyway. You are a child forsaken, and even though your body boils as you go about your day, your spine creaks, and your drooling form needs to be waited on tirelessly you are still considered more important then the peasant that keeps the town fed and warm. Remind them of that fact when your lungs are particularly pus free."
-	outfit = /datum/outfit/job/roguetown/heir/inbred
+	outfit = /datum/outfit/job/heir/inbred
 	category_tags = list(CTAG_HEIR)
 
 	traits_applied = list(TRAIT_CRITICAL_WEAKNESS, TRAIT_NORUN)
@@ -233,7 +229,7 @@
 		/datum/skill/misc/sewing = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/heir/inbred/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/heir/inbred/pre_equip(mob/living/carbon/human/H)
 	..()
 	head = /obj/item/clothing/head/roguetown/circlet
 	belt = /obj/item/storage/belt/rogue/leather

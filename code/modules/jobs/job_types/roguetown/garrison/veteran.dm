@@ -9,14 +9,16 @@
 	allowed_sexes = list(MALE, FEMALE) //same as town guard
 	allowed_races = RACES_ALL_KINDS//But. Actually not. Only Mercenary and Ex-Spy allow All Races.
 	tutorial = "You've known combat your entire life. There isn't a way to kill a man you havent practiced in the tapestries of war itself. You wouldn't call yourself a hero--those belong to the men left rotting in the fields where you honed your ancient trade. You don't sleep well at night anymore, you don't like remembering what you've had to do to survive. Trading adventure for stable pay was the only logical solution, and maybe someday you'll get to lay down the blade and rest your weary body..."
+	allowed_patrons = NON_PSYDON_PATRONS
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
 	advclass_cat_rolls = list(CTAG_VETERAN = 20)
 	display_order = JDO_VET
 	whitelist_req = TRUE
 	give_bank_account = 35
-	min_pq = 5 //Should...probably actually be a veteran of at least a few weeks before trying to teach others
+	min_pq = 10 //Should...probably actually be a veteran of at least a few weeks before trying to teach others
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_YEOMAN
 
 	cmode_music = 'sound/music/combat_veteran.ogg'
 
@@ -29,16 +31,13 @@
 		/datum/advclass/veteran/spy
 	)
 
-/datum/outfit/job/roguetown/captain
+/datum/outfit/job/captain
 	job_bitflag = BITFLAG_ROYALTY | BITFLAG_GARRISON	//Not a noble per-say but not really garrison either. So both, you are a courtier of sorts afterall + combat
 
 /datum/job/roguetown/veteran/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	. = ..()
 	if(ishuman(L))
 		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
 		if(istype(H.cloak, /obj/item/clothing/cloak/half/vet))
 			var/obj/item/clothing/S = H.cloak
 			var/index = findtext(H.real_name, " ")
@@ -53,7 +52,7 @@
 	name = "Veteran Battlemaster"
 	tutorial = "You have served under a hundred masters, some good, some bad. You were a general once. A marshal, a captain. To some a hero, others a monster. Something of the sorts. You made strategies, tactics, new innovations of war. A thousand new ways for one man to kill another. It still keeps you up at night."
 	allowed_races = RACES_FEARED_UP//I'm going to assume they are the same criteria as MAA
-	outfit = /datum/outfit/job/roguetown/vet/battlemaster
+	outfit = /datum/outfit/job/vet/battlemaster
 	category_tags = list(CTAG_VETERAN)
 	cmode_music = 'sound/music/combat_duelist.ogg'
 
@@ -88,7 +87,7 @@
 
 // Normal veteran start, from the olden days.
 
-/datum/outfit/job/roguetown/vet/battlemaster/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vet/battlemaster/pre_equip(mob/living/carbon/human/H)
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/scale
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail
@@ -117,7 +116,7 @@
 	name = "Retired Footman"
 	tutorial = "You served on the fields of battle as no heroic knight steadfast in shining armor, but a mere mortal clad in whatever cheap armor coin could buy. You fought in formation as a member of a unit, and through discipline, have won numerous battles. Maybe one day you even served as the captain of your unit. You specialize in polearms and bows."
 	allowed_races = RACES_FEARED_UP//I'm going to assume they are the same criteria as MAA
-	outfit = /datum/outfit/job/roguetown/vet/footman
+	outfit = /datum/outfit/job/vet/footman
 
 	category_tags = list(CTAG_VETERAN)
 
@@ -151,7 +150,7 @@
 
 // No hero, just a normal guy who happened to survive war.
 
-/datum/outfit/job/roguetown/vet/footman/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vet/footman/pre_equip(mob/living/carbon/human/H)
 	neck = /obj/item/clothing/neck/roguetown/gorget
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/half // Meant to be better than man-at-arms, but worse than knight. No heavy armor!! This is a cuirass, not half-plate.
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
@@ -189,7 +188,7 @@
 	name = "Tarnished Knight"
 	tutorial = "You were once a member of a knightly calvary regiment, a prestigious title. You were ontop of the world, the townspeople rejoiced when you rode through their streets. Now, all you can hear is the screams of your brothers-in-arms as they fell. You specialize in mounted warfare."
 	allowed_races = RACES_NOBILITY_ELIGIBLE_UP//Noble Knight.
-	outfit = /datum/outfit/job/roguetown/vet/cavalryman
+	outfit = /datum/outfit/job/vet/cavalryman
 
 	category_tags = list(CTAG_VETERAN)
 
@@ -224,8 +223,8 @@
 	)
 
 // You get a SAIGA. Saigas are pretty good, you lose out on your legendary weapon skills and you suck more on foot though.
-// Scarlet reach editor's note: This subclass fucking rots. Needs a rework.
-/datum/outfit/job/roguetown/vet/cavalryman/pre_equip(mob/living/carbon/human/H)
+
+/datum/outfit/job/vet/cavalryman/pre_equip(mob/living/carbon/human/H)
 	neck = /obj/item/clothing/neck/roguetown/chaincoif
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/	////Former knights should have knightly armour.
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail
@@ -256,7 +255,7 @@
 
 	H.adjust_blindness(-3)
 	var/weapons = list("Sword + Recurve Bow","Axe + Crossbow","Spear + Shield")
-	var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+	var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
 		if("Sword + Recurve Bow")
@@ -278,7 +277,7 @@
 	name = "Retired Mercenary"
 	tutorial = "You were a sell-sword, a warrior of coin. Your pockets were never light, you always had a warm place to stay and food in your belly, but you knew that every battle could be your last. You're the last of your unit, and you can't help but regret it."
 	allowed_races = RACES_ALL_KINDS //Mercenary, and thus, the same options as the Mercenary class.
-	outfit = /datum/outfit/job/roguetown/vet/merc
+	outfit = /datum/outfit/job/vet/merc
 	extra_context = "Choose between Grenzelhoftian, Janissary or Condottiero mercenary."
 	category_tags = list(CTAG_VETERAN)
 	classes = list("Grenzelhoft" = "Having once served with zweihandler or halberd in the professional echelons of the Grenzelhoft mercenary guild, they are now free from the guild to pursue lordly service rather then highest bidder.",
@@ -288,16 +287,16 @@
 
 	traits_applied = list(TRAIT_STEELHEARTED)
 
-/datum/outfit/job/roguetown/vet/merc
+/datum/outfit/job/vet/merc
 	has_loadout = TRUE
 
-/datum/outfit/job/roguetown/vet/merc/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vet/merc/pre_equip(mob/living/carbon/human/H)
 	..()
 
 	// CLASS ARCHETYPES
 	H.adjust_blindness(-3)
 	var/classes = list("Grenzelhoft","Janissary","Condottiero")
-	var/classchoice = input("Choose your archetypes", "Available archetypes") as anything in classes
+	var/classchoice = input(H, "Choose your archetypes", "Available archetypes") as anything in classes
 
 	switch(classchoice)
 		if("Grenzelhoft") //this is the original Mercenary Veteran and is untouched
@@ -307,7 +306,7 @@
 			head = /obj/item/clothing/head/roguetown/grenzelhofthat
 			armor = /obj/item/clothing/suit/roguetown/armor/plate/half
 			pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/grenzelpants
-			shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+			shoes = /obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 			gloves = /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 			beltl = /obj/item/rogueweapon/sword/short
 			beltr = /obj/item/storage/keyring/guardcastle
@@ -352,7 +351,7 @@
 			H.cmode_music = 'sound/music/combat_grenzelhoft.ogg'
 
 			var/weapons = list("Zweihander","Halberd")
-			var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+			var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 			H.set_blindness(0)
 			switch(weapon_choice)
 				if("Zweihander")
@@ -406,7 +405,7 @@
 			H.cmode_music = 'sound/music/combat_desertrider.ogg'
 			ADD_TRAIT(H, TRAIT_MEDIUMARMOR, TRAIT_GENERIC)
 			var/weapons = list("Heavy Mace","Shamshir and Shield","Spear and Shield")
-			var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+			var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 			H.set_blindness(0)
 			switch(weapon_choice)
 				if("Heavy Mace")
@@ -474,7 +473,7 @@
 	name = "Former Scout"
 	allowed_races = RACES_FEARED_UP //Same as MAA, who might as well assume they were apart of.
 	tutorial = "You and your unit maneuvered ahead of the main force, ever-watchful for traps and ambushes. You never thought of what would happen should you actually walk into one. You specialize in archery and axes."
-	outfit = /datum/outfit/job/roguetown/vet/scout
+	outfit = /datum/outfit/job/vet/scout
 	category_tags = list(CTAG_VETERAN)
 	cmode_music = 'sound/music/combat_rogue.ogg'
 
@@ -513,7 +512,7 @@
 // Originally was meant to be a horse archer. I decided that was a bad idea.
 // Former Bogmaster maybe? I feel like that'd be cooler than just an archer guy.
 
-/datum/outfit/job/roguetown/vet/scout/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vet/scout/pre_equip(mob/living/carbon/human/H)
 	neck = /obj/item/clothing/neck/roguetown/gorget
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/hide
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
@@ -547,7 +546,7 @@
 	name = "Ex-Spy"
 	tutorial = "You didn't serve on the frontlines, you were an informant, a spy, an assassin. You wove your way through enemy courts, finding information, neutralizing loose ends. You lived old in a career that many die young. It's a miracle you stand here today. You specialize in knives, whips, and stealth."
 	allowed_races = RACES_ALL_KINDS //They were a spy. Disposable. It'd make even more sense to send a despised race out for such a high-risk task.
-	outfit = /datum/outfit/job/roguetown/vet/spy
+	outfit = /datum/outfit/job/vet/spy
 	category_tags = list(CTAG_VETERAN)
 
 	subclass_languages = list(/datum/language/thievescant)
@@ -586,7 +585,7 @@
 
 // The sneaker. Not really typical, but hey, wildcard. Wanna-be Spymaster. I guess that just makes them a normal spy, or, once one.
 
-/datum/outfit/job/roguetown/vet/spy/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/vet/spy/pre_equip(mob/living/carbon/human/H)
 	neck = /obj/item/clothing/neck/roguetown/gorget
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/white
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/puritan

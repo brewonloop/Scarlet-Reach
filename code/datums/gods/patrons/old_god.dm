@@ -18,6 +18,9 @@
 		"REBUKE THE HERETICAL- PSYDON ENDURES!",
 	)
 
+/datum/patron/old_god/situational_bonus(mob/living/follower, mob/living/target)
+	// HE WEEPS FOR US, AND WE WEEP FOR HIM, AND WHAT HAS BECOME OF HIS CREATION. (we're out in the rain or we're bleeding moderately)
+	return list((GLOB.forecast == "rain" && istype(get_area(follower), /area/rogue/outdoors) || follower.bleed_rate >= 10), 2.5)
 
 /obj/effect/proc_holder/spell/self/check_boot
 	name = "BOOT-CHECK"
@@ -84,7 +87,7 @@
 	var/obj/item/found_thing
 	if(H.get_stress_amount() > 0 && H.STALUC > 10)
 		found_thing = new /obj/item/roguecoin/gold
-	else if(H.STALUC == 10)
+	else if(H.STALUC >= 10)
 		found_thing = new /obj/item/roguecoin/silver
 	else
 		found_thing = new /obj/item/roguecoin/copper

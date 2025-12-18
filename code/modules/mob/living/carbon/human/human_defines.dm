@@ -61,8 +61,8 @@
 	var/obj/item/belt = null
 	var/obj/item/beltl = null
 	var/obj/item/beltr = null
-	var/obj/item/wear_ring = null
-	var/obj/item/wear_wrists = null
+	var/obj/item/clothing/wear_ring = null
+	var/obj/item/clothing/wear_wrists = null
 	var/obj/item/r_store = null
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
@@ -140,5 +140,14 @@
 	/// Whether our FOV cone is overridden to be hidden. Simple bool.
 	var/viewcone_override
 
+	/// Ref to orison-like sunder object
+	var/sunder_light_obj = null
+
 	// adds a flag that if we were skeletonized not because we are super dead and rotted, our face can be shown
 	var/ritual_skeletonization = FALSE // ritualcircles.dm path of rituos, prevents the ritual target's name always being unknown ingame. used in human_helpers.dm if( !O || (HAS_TRAIT(src, TRAIT_DISFIGURED)) || !real_name || (O.skeletonized && !ritual_skeletonization && !mind?.has_antag_datum(/datum/antagonist/lich)))
+
+/// used to do stuff with the guys we summoned
+	var/list/summons_under = list()
+
+	/// Assoc list of culinary preferences of the mob
+	var/list/culinary_preferences = list()

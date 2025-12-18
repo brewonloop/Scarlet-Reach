@@ -3,10 +3,11 @@
 	tutorial = "Trained by an Ecclesial sect, you uphold the Ideological purity of the Matthian Creed. Take from the wealthy, give to the worthless, empower. They will look up to you, in search of the God of Robbery's guidance. Be their light in the dark."
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
-	outfit = /datum/outfit/job/roguetown/bandit/iconoclast
+	outfit = /datum/outfit/job/bandit/iconoclast
 	category_tags = list(CTAG_BANDIT)
 	maximum_possible_slots = 1 // We only want one of these.
 	cmode_music = 'sound/music/Iconoclast.ogg'
+	subclass_social_rank = SOCIAL_RANK_PEASANT
 
 	traits_applied = list(
 		TRAIT_HEAVYARMOR,// We are going to be the lord's first heavy armor unarmed class
@@ -37,7 +38,7 @@
 		/datum/skill/misc/athletics = SKILL_LEVEL_MASTER, //We are the True Mathlete
 	)
 
-/datum/outfit/job/roguetown/bandit/iconoclast/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/bandit/iconoclast/pre_equip(mob/living/carbon/human/H)
 	..()
 	if (!(istype(H.patron, /datum/patron/inhumen/matthios)))	//This is the only class that forces Matthios. Needed for miracles + limited slot.
 		to_chat(H, span_warning("Matthios embraces me.. I must uphold his creed. I am his light in the darkness."))
@@ -47,6 +48,7 @@
 	pants = /obj/item/clothing/under/roguetown/trou/leather
 	r_hand = /obj/item/rogueweapon/woodstaff
 	shirt = /obj/item/clothing/suit/roguetown/shirt/shortshirt/random
+	neck = /obj/item/clothing/neck/roguetown/zcross/matthios
 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
 	cloak = /obj/item/clothing/cloak/raincloak/furcloak/brown
 	backr = /obj/item/storage/backpack/rogue/satchel

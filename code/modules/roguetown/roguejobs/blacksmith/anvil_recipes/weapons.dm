@@ -813,43 +813,43 @@
 	created_item = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
 
 /datum/anvil_recipe/weapons/iron/bolts
-	name = "Crossbow Bolts 10x (+2 Stick)"
+	name = "Crossbow Bolts 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/iron
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/bolt
 	createditem_num = 10
 	i_type = "Ammo"
 
 /datum/anvil_recipe/weapons/aalloy/bolts
-	name = "Decrepit Crossbow Bolts 10x (+2 Stick)"
+	name = "Decrepit Crossbow Bolts 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/aalloy
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/bolt/aalloy
 	createditem_num = 10
 	i_type = "Ammo"
 
 /datum/anvil_recipe/weapons/paalloy/bolts
-	name = "Ancient Crossbow Bolts 10x (+2 Stick)"
+	name = "Ancient Crossbow Bolts 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/purifiedaalloy
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/bolt/paalloy
 	createditem_num = 10
 	i_type = "Ammo"
 
 /// BOWS
 /datum/anvil_recipe/weapons/iron/arrows
-	name = "Iron Broadhead Arrows 10x (+2 Stick)"
+	name = "Iron Broadhead Arrows 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/iron
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/arrow/iron
 	createditem_num = 10
 	i_type = "Ammo"
 	craftdiff = 1
 
 /datum/anvil_recipe/weapons/aalloy/arrows
-	name = "Decrepit Broadhead Arrows 10x (+2 Stick)"
+	name = "Decrepit Broadhead Arrows 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/aalloy
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/arrow/iron/aalloy
 	createditem_num = 10
 	i_type = "Ammo"
@@ -858,18 +858,18 @@
 
 
 /datum/anvil_recipe/weapons/steel/arrows
-	name = "Steel Bodkin Arrows 10x (+2 Stick)"
+	name = "Steel Bodkin Arrows 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/steel
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/arrow/steel
 	createditem_num = 10
 	i_type = "Ammo"
 	craftdiff = 2
 
 /datum/anvil_recipe/weapons/paalloy/arrows
-	name = "Ancient Bodkin Arrows 10x (+2 Stick)"
+	name = "Ancient Bodkin Arrows 10x (+1 Stick)"
 	req_bar = /obj/item/ingot/purifiedaalloy
-	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	additional_items = list(/obj/item/grown/log/tree/stick)
 	created_item = /obj/item/ammo_casing/caseless/rogue/arrow/steel/paalloy
 	createditem_num = 10
 	i_type = "Ammo"
@@ -1095,6 +1095,97 @@
 /datum/anvil_recipe/weapons/psy/whip
 	name = "Psydonian Whip (+2 Cured Leather)"
 	req_bar = /obj/item/ingot/silverblessed
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/whip/psywhip_lesser
+	additional_items = list(/obj/item/natural/hide/cured, /obj/item/natural/hide/cured)
+	i_type = "Weapons"
+
+// BLESSED SILVER, BULLION VARIANTS
+/datum/anvil_recipe/weapons/psy/axe/inq
+	name = "Psydonian War Axe (+1 B. Silver, +1 Stick)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/stoneaxe/battle/psyaxe
+	additional_items = list(/obj/item/ingot/silverblessed/bullion, /obj/item/grown/log/tree/stick)
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/mace/inq
+	name = "Psydonian Mace (+1 B. Silver, +1 Stick)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/mace/goden/psymace
+	additional_items = list(/obj/item/ingot/silverblessed/bullion, /obj/item/grown/log/tree/stick)
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/spear/inq
+	name = "Psydonian Spear (+1 Small Log)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/spear/psyspear
+	additional_items = list(/obj/item/grown/log/tree/small)
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/dagger/inq
+	name = "Psydonian Dagger"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/shortsword/inq
+	name = "Psydonian Shortsword"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/sword/short/psy
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/katar/inq
+	name = "Psydonian Katar"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/katar/psydon
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/knuckles/inq
+	name = "Psydonian Knuckles"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/knuckles/psydon
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/cudgel/inq
+	name = "Psydonian Handmace"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/mace/cudgel/psy
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/halberd/inq
+	name = "Psydonian Halberd (+1 B. Silver, +1 Small Log)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/halberd/psyhalberd
+	additional_items = list(/obj/item/ingot/silverblessed/bullion, /obj/item/grown/log/tree/small)
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/gsword/inq
+	name = "Psydonian Greatsword (+1 B. Silver)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/greatsword/psygsword
+	additional_items = list(/obj/item/ingot/silverblessed/bullion)
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/sword/inq
+	name = "Psydonian Sword"
+	req_bar = /obj/item/ingot/silverblessed/bullion
+	craftdiff = 3
+	created_item = /obj/item/rogueweapon/sword/long/psysword
+	i_type = "Weapons"
+
+/datum/anvil_recipe/weapons/psy/whip/inq
+	name = "Psydonian Whip (+2 Cured Leather)"
+	req_bar = /obj/item/ingot/silverblessed/bullion
 	craftdiff = 3
 	created_item = /obj/item/rogueweapon/whip/psywhip_lesser
 	additional_items = list(/obj/item/natural/hide/cured, /obj/item/natural/hide/cured)

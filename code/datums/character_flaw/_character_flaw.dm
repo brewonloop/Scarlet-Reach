@@ -23,6 +23,7 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	"Critical Weakness"=/datum/charflaw/critweakness,
 	"Foreigner"=/datum/charflaw/foreigner,
 	"Damned"=/datum/charflaw/damned,
+	"Lawless"=/datum/charflaw/lawless,
 	"Random or No Flaw"=/datum/charflaw/randflaw,
 	"No Flaw (3 TRIUMPHS)"=/datum/charflaw/noflaw,
 	))
@@ -516,6 +517,7 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	var/mob/living/carbon/human/H = user
 	H.mob_biotypes |= MOB_UNDEAD
 	ADD_TRAIT(user, TRAIT_HOLLOW_LIFE, TRAIT_GENERIC)
+	ADD_TRAIT(user, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
 
 /datum/charflaw/foreigner
 	name = "Foreigner"

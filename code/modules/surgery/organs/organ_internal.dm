@@ -49,6 +49,8 @@
 	var/food_type = /obj/item/reagent_containers/food/snacks/organ
 	/// Original owner of the organ, the one who had it inside them last
 	var/mob/living/carbon/last_owner = null
+	/// Whether or not this organ should be regenerated at /datum/job/proc/equip() in _job.dm via /mob/living/carbon/proc/apply_organ_stuff()
+	var/should_regenerate = FALSE
 
 	grid_width = 32
 	grid_height = 32
@@ -84,6 +86,7 @@
 
 //Special is for instant replacement like autosurgeons
 /obj/item/organ/proc/Remove(mob/living/carbon/M, special = FALSE, drop_if_replaced = TRUE)
+	SEND_SIGNAL(owner, COMSIG_MOB_ORGAN_REMOVED, src, special, drop_if_replaced)
 	owner = null
 	if(M)
 		M.internal_organs -= src
@@ -171,7 +174,7 @@
 		foodtype = initial(foodtype)
 	if(bitecount >= bitesize)
 		record_featured_stat(FEATURED_STATS_CRIMINALS, eater)
-		GLOB.scarlet_round_stats[STATS_ORGANS_EATEN]++
+		record_round_statistic(STATS_ORGANS_EATEN)
 		check_culling(eater)
 		SEND_SIGNAL(eater, COMSIG_ORGAN_CONSUMED, src.type)
 	. = ..()
@@ -399,3 +402,10 @@
 		if(!getorganslot(ORGAN_SLOT_EARS))
 			var/obj/item/organ/ears/ears = new()
 			ears.Insert(src)
+
+/mob/living/carbon/proc/apply_organ_stuff()
+	if(dna?.species)
+		dna.species.apply_organ_stuff_species(src)
+		return
+	else
+		regenerate_organs()

@@ -3,7 +3,7 @@
 	tutorial = "You are a Varangian of the Gronn Highlands. Warrior-Traders whose exploits into the Raneshen Empire will be forever remembered by historians."
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
-	outfit = /datum/outfit/job/roguetown/mercenary/atgervi
+	outfit = /datum/outfit/job/mercenary/atgervi
 	category_tags = list(CTAG_MERCENARY)
 	class_select_category = CLASS_CAT_GRONN
 
@@ -36,10 +36,10 @@
 		/datum/skill/magic/holy = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/mercenary/atgervi
+/datum/outfit/job/mercenary/atgervi
 	allowed_patrons = ALL_INHUMEN_PATRONS
 
-/datum/outfit/job/roguetown/mercenary/atgervi/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/mercenary/atgervi/pre_equip(mob/living/carbon/human/H)
 	..()
 	to_chat(H, span_warning("You are a Varangian of the Gronn Highlands. Warrior-Traders whose exploits into the Raneshen Empire will be forever remembered by historians."))
 
@@ -67,10 +67,12 @@
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
 
+	change_origin(H, /datum/virtue/origin/racial/gronn)
+
 /datum/advclass/mercenary/atgervi/shaman
 	name = "Atgervi Shaman"
 	tutorial = "You are a Shaman of the Fjall, The Northern Empty. Savage combatants who commune with the Ecclesical Beast gods through ritualistic violence, rather than idle prayer."
-	outfit = /datum/outfit/job/roguetown/mercenary/atgervishaman
+	outfit = /datum/outfit/job/mercenary/atgervishaman
 
 	subclass_languages = list(/datum/language/gronnic)
 
@@ -97,10 +99,10 @@
 		/datum/skill/magic/holy = SKILL_LEVEL_JOURNEYMAN,
 	)
 
-/datum/outfit/job/roguetown/mercenary/atgervishaman
+/datum/outfit/job/mercenary/atgervishaman
 	allowed_patrons = ALL_INHUMEN_PATRONS
 
-/datum/outfit/job/roguetown/mercenary/atgervishaman/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/mercenary/atgervishaman/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.set_blindness(0)
 	to_chat(H, span_warning("You are a Shaman of the Fjall, The Northern Empty. Savage combatants who commune with the Ecclesical Beast gods through ritualistic violence, rather than idle prayer."))
@@ -128,6 +130,7 @@
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
 
+	change_origin(H, /datum/virtue/origin/racial/gronn)
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/atgervi
 	name = "vagarian hauberk"
@@ -158,6 +161,7 @@
 	desc = "A menacing pair of plated claws, A closely protected tradition of the Shamans. The four claws embodying the four great beasts. Decorated with symbols of the gods they praise and the Gods they reject."
 	icon_state = "atgervi_shaman_gloves"
 	item_state = "atergvi_shaman_gloves"
+	unarmed_bonus = 1.25
 
 /obj/item/clothing/head/roguetown/helmet/bascinet/atgervi
 	name = "owl helmet"

@@ -137,8 +137,6 @@
 		if(rand(1,20)==20)
 			if(newletter==" ")
 				newletter="...huuuhhh..."
-			if(newletter==".")
-				newletter=" *BURP*."
 		switch(rand(1,20))
 			if(1)
 				newletter+="'"
@@ -405,11 +403,17 @@
 			if(numb > possible_a_intents.len)
 				return
 			else
+				var/obj/item/held_item = get_active_held_item()
+				if(held_item)
+					held_item.saved_intent_index = numb
+				else
+					if(active_hand_index == 1)
+						l_ua_index = numb
+					else
+						r_ua_index = numb
 				if(active_hand_index == 1)
-					l_ua_index = numb
 					l_index = numb
 				else
-					r_ua_index = numb
 					r_index = numb
 				a_intent = possible_a_intents[numb]
 		else
@@ -439,9 +443,9 @@
 			intents = Masteritem.alt_intents
 	else
 		if(active_hand_index == 1)
-			r_index = r_ua_index
-		else
 			l_index = l_ua_index
+		else
+			r_index = r_ua_index
 		intents = base_intents.Copy()
 	for(var/defintent in intents)
 		if(Masteritem)
@@ -457,9 +461,9 @@
 			intents = Masteritem.alt_intents
 	else
 		if(active_hand_index == 1)
-			l_index = l_ua_index
-		else
 			r_index = r_ua_index
+		else
+			l_index = l_ua_index
 		intents = base_intents.Copy()
 	for(var/defintent in intents)
 		if(Masteritem)
@@ -471,17 +475,25 @@
 			hud_used.action_intent.update_icon(possible_a_intents,possible_offhand_intents,oactive)
 		else
 			hud_used.action_intent.update_icon(possible_offhand_intents,possible_a_intents,oactive)
-	if(active_hand_index == 1)
-		if(l_index <= possible_a_intents.len)
-			rog_intent_change(l_index)
+	var/obj/item/active_item = get_active_held_item()
+	if(active_item && active_item.saved_intent_index > 0 && active_item.saved_intent_index <= possible_a_intents.len)
+		if(active_hand_index == 1)
+			l_index = active_item.saved_intent_index
 		else
-			rog_intent_change(1)
+			r_index = active_item.saved_intent_index
+	if(active_hand_index == 1)
+		if(l_index > possible_a_intents.len)
+			l_index = 1
+		if(r_index > possible_offhand_intents.len)
+			r_index = 1
+		rog_intent_change(l_index)
 		rog_intent_change(r_index, 1)
 	else
-		if(r_index <= possible_a_intents.len)
-			rog_intent_change(r_index)
-		else
-			rog_intent_change(1)
+		if(r_index > possible_a_intents.len)
+			r_index = 1
+		if(l_index > possible_offhand_intents.len)
+			l_index = 1
+		rog_intent_change(r_index)
 		rog_intent_change(l_index, 1)
 
 /mob/verb/mmb_intent_change(input as text)
@@ -555,7 +567,6 @@
 	if(hud_used)
 		hud_used.quad_intents?.switch_intent(input)
 		hud_used.give_intent?.switch_intent(input)
-	givingto = null
 
 /mob/verb/def_intent_change(input as num)
 	set name = "def-change"
@@ -975,3 +986,25 @@
 		if(J.advjob_examine)
 			used_title = advjob
 	return used_title
+
+///Is the passed in mob a ghost with admin powers, doesn't check for AI interact like isAdminGhost() used to
+/proc/isAdminObserver(mob/user)
+	if(!user) //Are they a mob? Auto interface updates call this with a null src
+		return
+	if(!user.client) // Do they have a client?
+		return
+	if(!isobserver(user)) // Are they a ghost?
+		return
+	if(!check_rights_for(user.client, R_ADMIN)) // Are they allowed?
+		return
+	return TRUE
+
+///Returns TRUE/FALSE on whether the mob is an Admin Ghost AI.
+///This requires this snowflake check because AI interact gives the access to the mob's client, rather
+///than the mob like everyone else, and we keep it that way so they can't accidentally give someone Admin AI access.
+/proc/isAdminGhostAI(mob/user)
+	if(!isAdminObserver(user))
+		return FALSE
+	if(!HAS_TRAIT_FROM(user.client, TRAIT_AI_ACCESS, ADMIN_TRAIT)) // Do they have it enabled?
+		return FALSE
+	return TRUE

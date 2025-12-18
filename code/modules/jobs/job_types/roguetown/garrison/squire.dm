@@ -18,12 +18,13 @@
 		in the field alongside your friends, swordfighting with sticks, chasing rabbits with grain flail, and helping around the house lifting heavy \
 		bags of grain. The Knight took notice of your potential and brought you on as his personal ward. You're going to be something someday. \
 		At least— if you're one of the respectable races. If not? You know you'll never reach REAL knighthood. "
-	outfit = /datum/outfit/job/roguetown/squire
+	outfit = /datum/outfit/job/squire
 	display_order = JDO_SQUIRE
 	give_bank_account = TRUE
 	min_pq = -5 //squires aren't great but they can do some damage
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_PEASANT
 
 	cmode_music = 'sound/music/combat_squire.ogg'
 
@@ -33,7 +34,7 @@
 		/datum/advclass/squire/skirmisher
 	)
 
-/datum/outfit/job/roguetown/squire
+/datum/outfit/job/squire
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/guard
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	belt = /obj/item/storage/belt/rogue/leather
@@ -48,9 +49,6 @@
 	. = ..()
 	if(ishuman(L))
 		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
 		if(istype(H.cloak, /obj/item/clothing/cloak/stabard/surcoat/guard))
 			var/obj/item/clothing/S = H.cloak
 			var/index = findtext(H.real_name, " ")
@@ -64,7 +62,7 @@
 	name = "Lancer Squire"
 	tutorial = "A hopeful for the next generation of knightly mounted lancers and infantry pike specialists, \
 	your training with polearms sets you apart from other squires."
-	outfit = /datum/outfit/job/roguetown/squire/lancer
+	outfit = /datum/outfit/job/squire/lancer
 		
 	category_tags = list(CTAG_SQUIRE)
 
@@ -92,7 +90,7 @@
 		/datum/skill/misc/riding = SKILL_LEVEL_JOURNEYMAN,
 	)
 
-/datum/outfit/job/roguetown/squire/lancer/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/squire/lancer/pre_equip(mob/living/carbon/human/H)
 	r_hand = /obj/item/rogueweapon/spear
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail
 	gloves = /obj/item/clothing/gloves/roguetown/leather
@@ -104,7 +102,7 @@
 	name = "Footman Squire"
 	tutorial = "Your training has been singularly focused on the intricacies of sword, a weapon whose versatility \
 	belies the difficulty of its use."
-	outfit = /datum/outfit/job/roguetown/squire/footman
+	outfit = /datum/outfit/job/squire/footman
 		
 	category_tags = list(CTAG_SQUIRE)
 
@@ -131,7 +129,7 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/squire/footman/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/squire/footman/pre_equip(mob/living/carbon/human/H)
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail
 	gloves = /obj/item/clothing/gloves/roguetown/leather
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
@@ -144,7 +142,7 @@
 
 	H.adjust_blindness(-3)
 	var/weapons = list("Iron Sword","Cudgel",)
-	var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+	var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
 		if("Iron Sword")
@@ -158,7 +156,7 @@
 	tutorial = "As militaries become more flexible and tactics more moderne the importance of irregular troops \
 	has become more apparent, and hopefuls such as yourself have been trained into the future of elite skirmisher or stalker \
 	troops."
-	outfit = /datum/outfit/job/roguetown/squire/skirmisher
+	outfit = /datum/outfit/job/squire/skirmisher
 		
 	category_tags = list(CTAG_SQUIRE)
 
@@ -184,7 +182,7 @@
 		/datum/skill/misc/riding = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/squire/skirmisher/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/squire/skirmisher/pre_equip(mob/living/carbon/human/H)
 	beltr = /obj/item/quiver/arrows
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/studded
 	pants = /obj/item/clothing/under/roguetown/trou/leather

@@ -7,6 +7,7 @@
 	spawn_positions = 7
 	antag_job = TRUE
 	allowed_races = RACES_ALL_KINDS
+	disallowed_races = /datum/species/ogre
 	tutorial = "Long ago you did a crime worthy of your bounty being hung on the wall outside of the local inn. You now live with your fellow freemen in the bog, and generally get up to no good."
 
 	outfit = null
@@ -18,7 +19,7 @@
 	announce_latejoin = FALSE
 	min_pq = 3
 	max_pq = null
-	round_contrib_points = 5
+	round_contrib_points = 3
 
 	advclass_cat_rolls = list(CTAG_BANDIT = 20)
 	PQ_boost_divider = 10
@@ -47,12 +48,9 @@
 		var/mob/living/carbon/human/H = L
 		if(!H.mind)
 			return
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
 		H.ambushable = FALSE
 
-/datum/outfit/job/roguetown/bandit/post_equip(mob/living/carbon/human/H)
+/datum/outfit/job/bandit/post_equip(mob/living/carbon/human/H)
 	..()
 	var/datum/antagonist/new_antag = new /datum/antagonist/bandit()
 	H.mind.add_antag_datum(new_antag)

@@ -221,10 +221,9 @@
 //	var/list/L = params2list(params)
 
 	if(tcompare)
-		if(object)
-			if(isatom(object) && object != tcompare && mob.atkswinging && tcompare != mob)
-				var/atom/N = object
-				N.Click(location, control, params)
+		var/atom/target_atom = object
+		if(istype(target_atom) && tcompare != mob && (mob.atkswinging == "middle" || (mob.atkswinging && object != tcompare)))
+			target_atom.Click(location, control, params)
 		tcompare = null
 
 //	mouse_pointer_icon = 'icons/effects/mousemice/human.dmi'
@@ -283,7 +282,8 @@
 /client/proc/update_to_mob(mob/living/L, seconds_per_tick)
 	if(charging)
 		if(progress < goal)
-			progress += 1 * seconds_per_tick //Tickspeed independent. Should always be 1, isn't always 1 when under strain.
+			progress += max(0, 1 * seconds_per_tick )//Tickspeed independent. Should always be 1, isn't always 1 when under strain.
+			progress = min(progress,  goal)
 			chargedprog = ((progress / goal) * 100)
 			mouse_pointer_icon = SSmousecharge.access(chargedprog)
 		else //Fully charged spell

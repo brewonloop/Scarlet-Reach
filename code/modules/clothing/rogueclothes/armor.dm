@@ -1003,14 +1003,6 @@
 	max_integrity = 150
 	smeltresult = /obj/item/ingot/aalloy
 
-
-/obj/item/clothing/suit/roguetown/armor/plate/paalloy
-	name = "ancient half-plate"
-	desc = "Plate formed out of ancient alloys. Aeon's grasp has been lifted from it."
-	icon_state = "ancientplate"
-	item_state = "ancientplate"
-	smeltresult = /obj/item/ingot/aaslag
-
 /obj/item/clothing/suit/roguetown/armor/plate/fluted
 	name = "fluted half-plate"
 	desc = "A sturdily made fluted half-plate armour-set, complete with pauldrons and shoulder-guards. \
@@ -1035,7 +1027,7 @@
 	if(!HAS_TRAIT(user, TRAIT_HORDE))
 		to_chat(user, "<font color='red'>UNWORTHY HANDS TOUCHING THIS ARMOR, CEASE OR BE RENDED ASUNDER!</font>")
 		user.adjust_fire_stacks(5)
-		user.IgniteMob()
+		user.ignite_mob()
 		user.Stun(40)
 	..()
 
@@ -1127,6 +1119,12 @@
 		return
 	qdel(src)
 
+/obj/item/clothing/suit/roguetown/armor/plate/full/paalloy
+	name = "ancient full-plate" //why was this half plate?
+	desc = "Plate formed out of ancient alloys. Aeon's grasp has been lifted from it."
+	icon_state = "ancientplate"
+	item_state = "ancientplate"
+	smeltresult = /obj/item/ingot/aaslag
 
 /obj/item/clothing/suit/roguetown/armor/plate/full/bikini
 	slot_flags = ITEM_SLOT_ARMOR
@@ -1143,7 +1141,7 @@
 	smeltresult = /obj/item/ingot/steel
 	smelt_bar_num = 3
 
-/obj/item/clothing/suit/roguetown/armor/heartfelt/lord
+/obj/item/clothing/suit/roguetown/armor/heartfelt
 	slot_flags = ITEM_SLOT_ARMOR
 	name = "coat of armor"
 	desc = "A lordly coat of armor."
@@ -1162,22 +1160,35 @@
 	smelt_bar_num = 4
 
 /obj/item/clothing/suit/roguetown/armor/heartfelt/hand
-	slot_flags = ITEM_SLOT_ARMOR
-	name = "coat of armor"
-	desc = "A lordly coat of armor."
-	body_parts_covered = COVERAGE_FULL
 	icon_state = "heartfelt_hand"
 	item_state = "heartfelt_hand"
+
+/obj/item/clothing/suit/roguetown/armor/heartfelt/knight
+	icon = 'icons/roguetown/clothing/special/blkknight.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/blkknight.dmi'
+	sleeved = 'icons/roguetown/clothing/special/onmob/blkknight.dmi'
+	icon_state = "bkarmor"
+	item_state = "bkarmor"
+	color = "#550000"
+
+/obj/item/clothing/suit/roguetown/armor/brigandine/heartfelt //Using brigandine for fancy coloring
+	slot_flags = ITEM_SLOT_ARMOR
+	name = "heartfeltian brigandine"
+	desc = "Lightweight composite armour made according to an Etruscan tradition. It's a high-quality arched plate cuirass sewn with dyed leather and fitted with a wide skirt at the bottom to cover the thighs."
+	icon_state = "brigandine"
+	blocksound = SOFTHIT
+	body_parts_covered = COVERAGE_FULL
 	armor = ARMOR_PLATE
 	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
 	allowed_sex = list(MALE, FEMALE)
 	nodismemsleeves = TRUE
-	blocking_behavior = null
-	max_integrity = 400
+	max_integrity = 300
 	anvilrepair = /datum/skill/craft/armorsmithing
 	smeltresult = /obj/item/ingot/steel
-	armor_class = ARMOR_CLASS_HEAVY
-	smelt_bar_num = 4
+	equip_delay_self = 4 SECONDS
+	armor_class = ARMOR_CLASS_MEDIUM // Medium to not give them heavy armor training
+	sleeved_detail = FALSE
+	boobed_detail = FALSE
 
 /obj/item/clothing/suit/roguetown/armor/plate/otavan
 	name = "otavan half-plate"
@@ -1377,6 +1388,7 @@
 	icon_state = "inqcoat"
 	item_state = "inqcoat"
 	sleevetype = "shirt"
+	sewrepair = TRUE
 	max_integrity = 300
 	anvilrepair = /datum/skill/craft/armorsmithing
 	equip_delay_self = 4 SECONDS
@@ -1440,7 +1452,7 @@
 	armor = ARMOR_PLATE_BSTEEL
 	allowed_race = CLOTHED_RACES_TYPES
 	blocking_behavior = null
-	max_integrity = 400
+	max_integrity = 650
 	smeltresult = /obj/item/ingot/blacksteel
 	equip_delay_self = 12 SECONDS
 	unequip_delay_self = 12 SECONDS
@@ -1460,7 +1472,7 @@
 	armor = ARMOR_PLATE_BSTEEL
 	allowed_race = CLOTHED_RACES_TYPES
 	blocking_behavior = null
-	max_integrity = 400
+	max_integrity = 650
 	smeltresult = /obj/item/ingot/blacksteel
 	equip_delay_self = 12 SECONDS
 	unequip_delay_self = 12 SECONDS
@@ -1676,3 +1688,69 @@
 	flags_inv = HIDEBOOB
 	max_integrity = 200
 	equip_delay_self = 30
+
+/obj/item/clothing/suit/roguetown/armor/velvetcoat
+	name = "velvet coat"
+	desc = "A velvet coat made from the finest fabrics."
+	icon_state = "velvetcoat"
+	detail_tag = "_detail"
+	altdetail_tag = "_detailalt"
+	detail_color = CLOTHING_WHITE
+	allowed_race = NON_DWARVEN_RACE_TYPES
+	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_CLOAK
+	break_sound = 'sound/foley/cloth_rip.ogg'
+	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
+	sewrepair = TRUE
+	grid_width = 64
+	grid_height = 64
+
+/obj/item/clothing/suit/roguetown/armor/velvetcoat/Initialize()
+	. = ..()		
+	update_icon()
+
+/obj/item/clothing/suit/roguetown/armor/velvetcoat/update_icon()
+	cut_overlays()
+	if(get_detail_tag())
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		pic.appearance_flags = RESET_COLOR
+		if(get_detail_color())
+			pic.color = get_detail_color()
+		add_overlay(pic)
+
+/obj/item/clothing/suit/roguetown/armor/velvetcoat/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
+
+//Kazengun
+
+/obj/item/clothing/suit/roguetown/armor/haori
+	name = "haori"
+	desc = "A traditional jacket meant to be worn over a kimono."
+	icon_state = "haori"
+	color = CLOTHING_BLACK
+	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_CLOAK
+	break_sound = 'sound/foley/cloth_rip.ogg'
+	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
+	sewrepair = TRUE
+	r_sleeve_status = SLEEVE_NORMAL
+	l_sleeve_status = SLEEVE_NORMAL
+
+/obj/item/clothing/suit/roguetown/armor/haori/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/storage/concrete/roguetown/cloak)
+
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/ogre
+	name = "giant hauberk"
+	desc = "A gigantic chainmail shirt, absurd to even think it would fit someone of normal size."
+	sleeved = 'icons/roguetown/clothing/onmob/helpers/32x64/ogre_onmob_sleeves.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_maille"
+	allowed_race = OGRE_RACE_TYPES
+
+/obj/item/clothing/suit/roguetown/armor/plate/half/ogre
+	name = "giant cuirass"
+	desc = "An absurdly large piece of armor, meant for an absurdly large man."
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_cuirass"
+	max_integrity = 600 // wow these guys are super weak
+	allowed_race = OGRE_RACE_TYPES

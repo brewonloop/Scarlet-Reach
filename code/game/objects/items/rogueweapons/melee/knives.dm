@@ -192,6 +192,7 @@
 	swingsound = list('sound/combat/wooshes/bladed/wooshmed (1).ogg','sound/combat/wooshes/bladed/wooshmed (2).ogg','sound/combat/wooshes/bladed/wooshmed (3).ogg')
 	throwforce = 15
 	slot_flags = ITEM_SLOT_HIP
+	item_flags = PEASANT_WEAPON
 	thrown_bclass = BCLASS_CHOP
 	w_class = WEIGHT_CLASS_NORMAL
 	smeltresult = /obj/item/ingot/steel
@@ -238,6 +239,7 @@
 	swingsound = list('sound/combat/wooshes/bladed/wooshmed (1).ogg','sound/combat/wooshes/bladed/wooshmed (2).ogg','sound/combat/wooshes/bladed/wooshmed (3).ogg')
 	throwforce = 15
 	slot_flags = ITEM_SLOT_HIP
+	item_flags = PEASANT_WEAPON
 	thrown_bclass = BCLASS_CUT
 	w_class = WEIGHT_CLASS_SMALL
 	smeltresult = /obj/item/ingot/steel
@@ -390,12 +392,25 @@
 	desc = "This silver dagger can be the banishment of vampires and werewolves."
 	icon_state = "sildagger"
 	sheathe_icon = "sildagger"
+	force = 15
+	wdefense = 6
 	sellprice = 50
 	smeltresult = /obj/item/ingot/silver
 	last_used = 0
 	is_silver = TRUE
 
 	picklvl = 1.11
+
+/obj/item/rogueweapon/huntingknife/idagger/silver/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_NONE,\
+		silver_type = SILVER_TENNITE,\
+		added_force = 0,\
+		added_blade_int = 50,\
+		added_int = 50,\
+		added_def = 2,\
+	)
 
 /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger
 	name = "ornate dagger"
@@ -404,157 +419,31 @@
 	icon_state = "psydagger"
 	sheathe_icon = "psydagger"
 	sellprice = 70
+	
 
 	picklvl = 1.175
 
 /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger/ComponentInitialize()
-	. = ..()					//+2 force, +50 int, +1 def, make silver
-	AddComponent(/datum/component/psyblessed, FALSE, 2, FALSE, 50, 1, TRUE)
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_PSYDONIAN,\
+		silver_type = SILVER_PSYDONIAN,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 100,\
+		added_def = 2,\
+	)
 
 /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger/preblessed/ComponentInitialize()
-	. = ..()					//Pre-blessed, +2 force, +50 int, +1 def, make silver
-	AddComponent(/datum/component/psyblessed, TRUE, 2, FALSE, 50, 1, TRUE)
-
-/obj/item/rogueweapon/huntingknife/idagger/silver/pickup(mob/user)
-	. = ..()
-	var/mob/living/carbon/human/H = user
-	var/datum/antagonist/vampirelord/V_lord = H.mind.has_antag_datum(/datum/antagonist/vampirelord/)
-	var/datum/antagonist/werewolf/W = H.mind.has_antag_datum(/datum/antagonist/werewolf/)
-	if(ishuman(H))
-		if(H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-			to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(V_lord)
-			if(V_lord.vamplevel < 4 && !H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-				to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-				H.Knockdown(10)
-				H.adjustFireLoss(25)
-		if(W && W.transformed == TRUE)
-			to_chat(H, span_userdanger("I can't pick up the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(HAS_TRAIT(H, TRAIT_HOLLOW_LIFE))
-			to_chat(H, span_userdanger("I can't pick up the silver, for I am one of the damned!"))
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-			H.Knockdown(5)
-			H.Paralyze(5)
-
-
-/obj/item/rogueweapon/huntingknife/idagger/silver/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	. = ..()
-	if(ishuman(M) && M.mind)
-		var/mob/living/carbon/human/H = M
-		var/datum/antagonist/vampirelord/V_lord = H.mind.has_antag_datum(/datum/antagonist/vampirelord/)
-		var/datum/antagonist/werewolf/W = H.mind.has_antag_datum(/datum/antagonist/werewolf/)
-		if(H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-			to_chat(H, span_userdanger("I can't equip the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(V_lord)
-			if(V_lord.vamplevel < 4 && !H.mind.has_antag_datum(/datum/antagonist/vampirelord/lesser))
-				to_chat(H, span_userdanger("I can't equip the silver, it is my BANE!"))
-				H.Knockdown(5)
-				H.Paralyze(5)
-				H.adjustFireLoss(25)
-				H.fire_act(1,5)
-		if(W && W.transformed == TRUE)
-			to_chat(H, span_userdanger("I can't equip the silver, it is my BANE!"))
-			H.Knockdown(10)
-			H.Paralyze(10)
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-		if(HAS_TRAIT(H, TRAIT_HOLLOW_LIFE))
-			to_chat(H, span_userdanger("I can't equip the silver, for I am one of the damned!"))
-			H.adjustFireLoss(25)
-			H.fire_act(1,10)
-			H.Knockdown(5)
-			H.Paralyze(5)
-
-/obj/item/weapon/knife/dagger/silver/arcyne
-	name = "glowing purple silver dagger"
-	desc = "This dagger glows a faint purple. Quicksilver runs across its blade."
-	var/is_bled = FALSE
-
-	picklvl = 0.95
-
-/obj/item/weapon/knife/dagger/silver/arcyne/Initialize()
-	. = ..()
-	filter(type="drop_shadow", x=0, y=0, size=2, offset=1, color=rgb(128, 0, 128, 1))
-
-/obj/item/weapon/knife/dagger/silver/attackby(obj/item/M, mob/user, params)
-	if(istype(M,/obj/item/rogueore/cinnabar))
-		var/crafttime = (60 - ((user.get_skill_level(/datum/skill/magic/arcane)) * 5))
-		if(do_after(user, crafttime, target = src))
-			playsound(loc, 'sound/magic/scrapeblade.ogg', 100, TRUE)
-			to_chat(user, span_notice("I press acryne magic into the blade and it throbs in a deep purple..."))
-			var/obj/arcyne_knife = new /obj/item/weapon/knife/dagger/silver/arcyne
-			qdel(M)
-			qdel(src)
-			user.put_in_active_hand(arcyne_knife)
-	else
-		return ..()
-
-/obj/item/weapon/knife/dagger/silver/arcyne/attack_self(mob/living/carbon/human/user)
-	if(!isarcyne(user))
-		return
-	var/obj/effect/decal/cleanable/roguerune/pickrune
-	var/runenameinput = input(user, "Runes", "All Runes") as null|anything in GLOB.t4rune_types
-	pickrune = GLOB.rune_types[runenameinput]
-	if(!pickrune)
-		return
-	var/turf/Turf = get_turf(user)
-	if(locate(/obj/effect/decal/cleanable/roguerune) in Turf)
-		to_chat(user, span_cult("There is already a rune here."))
-		return
-	var/structures_in_way = check_for_structures_and_closed_turfs(loc, pickrune)
-	if(structures_in_way == TRUE)
-		to_chat(user, span_cult("There is a structure, rune or wall in the way."))
-		return
-	var/chosen_keyword
-	if(pickrune.req_keyword)
-		chosen_keyword = stripped_input(user, "Keyword for the new rune", "Runes", max_length = MAX_NAME_LEN)
-		if(!chosen_keyword)
-			return FALSE
-	if(!is_bled)
-		playsound(loc, get_sfx("genslash"), 100, TRUE)
-		user.visible_message(span_warning("[user] cuts open [user.p_their()] palm!"), \
-			span_cult("I slice open my palm!"))
-		if(user.blood_volume)
-			user.apply_damage(pickrune.scribe_damage, BRUTE, pick(BODY_ZONE_L_ARM, BODY_ZONE_R_ARM))
-		is_bled = TRUE
-	var/crafttime = (10 SECONDS - ((user.get_skill_level(/datum/skill/magic/arcane)) * 5))
-
-	user.visible_message(span_warning("[user] begins to carve something with [user.p_their()] blade!"), \
-		span_notice("I start to drag the blade in the shape of symbols and sigils."))
-	playsound(loc, 'sound/magic/bladescrape.ogg', 100, TRUE)
-	if(do_after(user, crafttime, target = src))
-		if(QDELETED(src) || !pickrune)
-			return
-		user.visible_message(span_warning("[user] carves an arcyne rune with [user.p_their()] [src]!"), \
-		span_notice("I finish dragging the blade in symbols and circles, leaving behind a [pickrune.name]."))
-		new pickrune(Turf, chosen_keyword)
-
-/obj/item/weapon/knife/dagger/proc/check_for_structures_and_closed_turfs(loc, obj/effect/decal/cleanable/roguerune/rune_to_scribe)
-	for(var/turf/T in range(loc, rune_to_scribe.runesize))
-		//check for /sturcture subtypes in the turf's contents
-		for(var/obj/structure/S in T.contents)
-			return TRUE		//Found a structure, no need to continue
-		//check if turf itself is a /turf/closed subtype
-		if(istype(T,/turf/closed))
-			return TRUE
-		//check if rune in the turfs contents
-		for(var/obj/effect/decal/cleanable/roguerune/R in T.contents)
-			return TRUE
-		//Return false if nothing in range was found
-	return FALSE
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_PSYDONIAN,\
+		silver_type = SILVER_PSYDONIAN,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 100,\
+		added_def = 2,\
+	)
 
 /obj/item/rogueweapon/huntingknife/stoneknife
 	possible_item_intents = list(/datum/intent/dagger/cut,/datum/intent/dagger/chop)
@@ -569,10 +458,32 @@
 
 	picklvl = 0.8
 
+/obj/item/rogueweapon/huntingknife/stoneknife/kukri
+	name = "joapstone kukri"
+	desc = "A kukri made out of joapstone. Its more of a ceremonial piece than it is an implement of war, its somewhat fragile. Be gentle with it."
+	icon = 'icons/roguetown/gems/gem_jade.dmi'
+	icon_state = "kukri_jade"
+	max_integrity = 75
+	max_blade_int = 50
+	wdefense = 3
+	resistance_flags = FIRE_PROOF | ACID_PROOF
+	sellprice = 75
+
+/obj/item/rogueweapon/huntingknife/stoneknife/opalknife
+	name = "opaloise knife"
+	desc = "A beautiful knife carved out of opaloise. Its not intended for combat. It's presence is vital in some Crimson Elven ceremonies."
+	icon = 'icons/roguetown/gems/gem_opal.dmi'
+	icon_state = "knife_opal"
+	max_integrity = 75
+	max_blade_int = 50
+	wdefense = 3
+	resistance_flags = FIRE_PROOF | ACID_PROOF
+	sellprice = 105
+
 /obj/item/rogueweapon/huntingknife/idagger/silver/elvish
 	name = "elvish dagger"
 	desc = "This beautiful dagger is of intricate, elvish design. Sharper, too."
-	force = 22
+	force = 18
 	max_blade_int = 250
 	icon_state = "elfdagger"
 	item_state = "elfdag"
@@ -584,7 +495,7 @@
 /obj/item/rogueweapon/huntingknife/idagger/silver/elvish/drow
 	name = "drowish dagger"
 	desc = "A vicious wave-bladed dagger from the Underdark."
-	force = 25
+	force = 18
 	last_used = 0
 	is_silver = TRUE
 
@@ -599,6 +510,7 @@
 	item_state = "elfdag"
 	var/extended = 0
 	wdefense = 2
+	max_integrity = 15
 	sellprice = 30 //shiny :o
 
 	picklvl = 0
@@ -609,6 +521,7 @@
 	if(extended)
 		force = 20
 		wdefense = 6
+		wdefense_dynamic = 6
 		w_class = WEIGHT_CLASS_NORMAL
 		throwforce = 23
 		icon_state = "navaja_o"
@@ -624,6 +537,7 @@
 		attack_verb = list("stubbed", "poked")
 		sharpness = IS_BLUNT
 		wdefense = 2
+		wdefense_dynamic = 2
 
 /obj/item/rogueweapon/huntingknife/throwingknife
 	name = "iron tossblade"
@@ -691,23 +605,37 @@
 	name = "silver tossblade"
 	desc = "An unconventional method of delivering silver to a heretic; but one that the Ten smile at, all the same. Doubles as an actual knife in a pinch, though obviously not as well."
 	item_state = "bone_dagger"
-	force = 12
-	throwforce = 28
+	force = 10
+	throwforce = 20
 	armor_penetration = 50
 	max_integrity = 150
 	wdefense = 3
 	icon_state = "throw_knifep"
 	embedding = list("embedded_pain_multiplier" = 4, "embed_chance" = 50, "embedded_fall_chance" = 0)
 	is_silver = TRUE
+	smeltresult = /obj/item/ingot/silver
 	sellprice = 6
+
+/obj/item/rogueweapon/huntingknife/throwingknife/psydon/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_NONE,\
+		silver_type = SILVER_PSYDONIAN,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 100,\
+		added_def = 3,\
+	)
 
 /obj/item/rogueweapon/huntingknife/scissors
 	possible_item_intents = list(/datum/intent/snip, /datum/intent/dagger/thrust, /datum/intent/dagger/cut)
 	max_integrity = 100
 	name = "iron scissors"
 	desc = "Scissors made of iron that may be used to salvage usable materials from clothing."
+	icon = 'icons/roguetown/weapons/tools.dmi'
 	icon_state = "iscissors"
 	inv_storage_delay = null
+	item_flags = PEASANT_WEAPON
 
 	picklvl = 0.85
 
@@ -924,32 +852,89 @@
 /obj/item/rogueweapon/huntingknife/scissors/attack_obj(obj/O, mob/living/user)
 	if(user.used_intent.type == /datum/intent/snip && istype(O, /obj/item))
 		var/obj/item/item = O
-		if(item.sewrepair && item.salvage_result) // We can only salvage objects which can be sewn!
-			var/salvage_time = 70
-			salvage_time = (70 - ((user.get_skill_level(/datum/skill/misc/sewing)) * 10))
+		if(item.sewrepair)
+			var/salvage_time = 7 SECONDS // If you put this below six, make sure to add a min() check.
+			var/skill_level = user.get_skill_level(/datum/skill/misc/sewing)
+			salvage_time = (salvage_time - ((skill_level) * 1 SECONDS))
 			if(!do_after(user, salvage_time, target = user))
 				return
-
-			if(item.fiber_salvage) //We're getting fiber as base if fiber is present on the item
-				new /obj/item/natural/fibers(get_turf(item))
-			if(istype(item, /obj/item/storage))
-				var/obj/item/storage/bag = item
-				bag.emptyStorage()
-			var/skill_level = user.get_skill_level(/datum/skill/misc/sewing)
-			if(prob(50 - (skill_level * 10))) // We are dumb and we failed!
-				to_chat(user, span_info("I ruined some of the materials due to my lack of skill..."))
+			var/turf/T = get_turf(item)
+			var/datum/crafting_recipe/item_recipe
+			for(var/recipe in GLOB.crafting_recipes) // Loops through sewing / weaving & leatherworking (skincraft) recipes 
+				var/datum/crafting_recipe/R = recipe
+				if(R.name == "")
+					continue
+				if(R.skillcraft != /datum/skill/misc/sewing && R.skillcraft != /datum/skill/craft/tanning)
+					continue
+				var/obj/item/recipe_result
+				if(R.result.len)
+					recipe_result = R.result[1]
+				else
+					recipe_result = R.result
+				if(lowertext(recipe_result.name) == lowertext(initial(item.name))) // initial() check for player name changed items
+					if(R.result.len > 1) // We return early and cancel the scrapping if the recipe to make it gives multiple of the item. (Reason? one cured leather makes three shoes, at legendary sewing you'd get 3 leather back.)
+						to_chat(user, span_warning("I can't seem to get any proper salvage from [item]."))
+						return
+					item_recipe = new R.type // This is qdel'd later.
+					break
+			user.mind.add_sleep_experience(/datum/skill/misc/sewing, (user.STAINT)) // You get XP regardless of failing or not.
+			if(prob(20 - (skill_level * 10))) // IF YOU REALLLLLY FUCK UP? You get jackshit. Skill Level: (20% ----> -40%)
+				to_chat(user, span_danger("I ruined the [item] due to my lack of skill..."))
 				playsound(item, 'sound/foley/cloth_rip.ogg', 50, TRUE)
 				qdel(item)
-				user.mind.add_sleep_experience(/datum/skill/misc/sewing, (user.STAINT)) //Getting exp for failing
-				return //We are returning early if the skill check fails!
-			item.salvage_amount -= item.torn_sleeve_number
-			for(var/i = 1; i <= item.salvage_amount; i++) // We are spawning salvage result for the salvage amount minus the torn sleves!
-				var/obj/item/Sr = new item.salvage_result(get_turf(item))
-				Sr.color = item.color
+				return //We are returning early if the skill check fails critically!
+			if(istype(item, /obj/item/storage)) // Bag? Yeet that shit out.
+				var/obj/item/storage/bag = item
+				bag.emptyStorage()
+			// We found a recipe! Time to use its requirements to give back a portion of what they used
+			// Skill Level: Novice 20% ----> Legendary (100%) return rates (not linear between skill jumps)
+			var/list/skill_bonuses = list(
+				1 = 0.2,
+				2 = 0.3,
+				3 = 0.4, // Here and beyond in skill level they will receive ATLEAST one of each ingredient back.
+				4 = 0.5,
+				5 = 0.75,
+				6 = 1,
+			)
+			if(item_recipe) // null check
+				if(skill_level == SKILL_LEVEL_NONE)
+					skill_level++ //Give them a LITTLE bone to start off with. 20% isn't crazy. Expensive recipes that have 5+ of an ingredient will yield at least 1. 
+				var/list/results = item_recipe.reqs
+				if(item.torn_sleeve_number)
+					to_chat(user, span_danger("I am losing [item.torn_sleeve_number] from each salvage attempt due to the torn sleeves.")) // Feedback if you lose some.
+				for(var/ingredient in results)
+					var/obj/item/I = ingredient
+					if(!results[ingredient])
+						results[ingredient] = 1 // Set it to one for the case of spawning something (ie, the reqs doesn't have a value set for the key).
+					if(prob(50 - (skill_level * 10))) // 50% base to fail -----> -10% at Legendary
+						results[ingredient] = 0 // Woops! Next ingredient
+						playsound(item, 'sound/foley/cloth_rip.ogg', 50, TRUE)
+						to_chat(user, span_danger("I ruined [I.name] while salvaging [item]. (Critical fail)")) // Feedback if you lose some.
+						continue
+					else
+						if(skill_level >= SKILL_LEVEL_JOURNEYMAN) // Better than or equal to journeyman? You'll always get ATLEAST one back.
+							results[ingredient] = max(1, results[ingredient] * skill_bonuses[skill_level]) // Refer to skill_bonuses (You're guaranteed to get ATLEAST 1)
+						else
+							results[ingredient] *= skill_bonuses[skill_level]
+						results[ingredient] = round(results[ingredient])
+					results[ingredient] -= item.torn_sleeve_number // Removes one of EVERY ingredient amount on the return.
+					if(results[ingredient] > 0) // whole numbers only homie!
+						to_chat(user, span_info("I was able to salvage some [I.name] from [item], gaining [results[ingredient]].")) // Feedback to the player on how much they gained
+						for(var/i = 0; i < results[ingredient]; i++)
+							new ingredient(T)
+					else
+						to_chat(user, span_info("I wasn't able to salvage any usable [I.name], there wasn't enough.")) // Feedback if you lose some.
+					qdel(item_recipe) // Clean up :)
+			else
+				if(item.salvage_result) // no recipe found, defaulting to salvage result
+					item.salvage_amount -= item.torn_sleeve_number
+					for(var/i = 0; i < item.salvage_amount; i++) // We are spawning salvage result for the salvage amount minus the torn sleeves!
+						new item.salvage_result(T)
+				if(item.fiber_salvage) //We're getting fiber as base if fiber is present on the item
+					new /obj/item/natural/fibers(T)
 			user.visible_message(span_notice("[user] salvages [item] into usable materials."))
 			playsound(item, 'sound/items/flint.ogg', 100, TRUE)
 			qdel(item)
-			user.mind.add_sleep_experience(/datum/skill/misc/sewing, (user.STAINT))
 	return ..()
 
 /obj/item/rogueweapon/huntingknife/attack(mob/living/M, mob/living/user)
@@ -981,3 +966,15 @@
 			user.overlay_fullscreen("painflash", /atom/movable/screen/fullscreen/painflash)
 			return
 	..()
+
+/obj/item/rogueweapon/huntingknife/cleaver/ogre
+	name = "Meat Choppah"
+	desc = "Any good cook needs to prep their meat. Chop it, slice it, maybe even kill it before you do all that. Meant for the hands of a giant."
+	icon = 'icons/roguetown/weapons/64.dmi'
+	icon_state = "ogre_cleaver"
+	force = 25
+	wdefense = 4
+	minstr = 13
+	pixel_y = -16
+	pixel_x = -16
+	bigboy = TRUE

@@ -80,6 +80,8 @@
 	return T
 var/list/kick_verb
 /datum/component/footstep/proc/play_simplestep()
+	if(HAS_TRAIT(parent, TRAIT_SILENT_FOOTSTEPS))
+		return
 	var/turf/open/T = prepare_step()
 	if(!T)
 		return
@@ -108,6 +110,8 @@ var/list/kick_verb
 	var/turf/open/T = prepare_step()
 	if(!T)
 		return
+	if(HAS_TRAIT(parent, TRAIT_SILENT_FOOTSTEPS))
+		return
 	var/mob/living/carbon/human/H = parent
 	var/feetCover = (H.wear_armor && (H.wear_armor.body_parts_covered & FEET)) || (H.wear_pants && (H.wear_pants.body_parts_covered & FEET))
 
@@ -115,7 +119,7 @@ var/list/kick_verb
 	var/list/used_footsteps
 	var/obj/item/clothing/shoes/humshoes = H.shoes
 
-	if((humshoes && !humshoes?.is_barefoot) && !islamia(H) || feetCover && !islamia(H)) //are we wearing shoes, and do they actually cover the sole
+	if((istype(humshoes) && !humshoes?.is_barefoot) && !islamia(H) || feetCover && !islamia(H)) //are we wearing shoes, and do they actually cover the sole
 		//SANITY CHECK, WILL NOT PLAY A SOUND IF THE LIST IS INVALID
 		if(!GLOB.footstep[T.footstep] || (LAZYLEN(GLOB.footstep[T.footstep]) < 3))
 			testing("SOME silly guy GAVE AN INVALID FOOTSTEP VALUE ([T.footstep]) TO [T.type]!!! FIX THIS SHIT!!!")

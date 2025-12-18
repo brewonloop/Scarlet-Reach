@@ -8,6 +8,7 @@
 	allowed_races = RACES_NOBILITY_ELIGIBLE_UP
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
+	allowed_patrons = NON_PSYDON_PATRONS
 	tutorial = "Your lineage is noble, and generations of strong, loyal knights have come before you. You served your time \
 	gracefully as knight of his royal majesty, and now you've grown into a role which many men can only dream of becoming. \
 	Veteran among knights, you lead the crown's knights to battle and organize the training squires. Obey the Marshal and the Crown. \
@@ -15,21 +16,26 @@
 	display_order = JDO_GUARD_CAPTAIN
 	advclass_cat_rolls = list(CTAG_CAPTAIN = 20)
 	spells = list(/obj/effect/proc_holder/spell/self/convertrole/guard)
-	outfit = /datum/outfit/job/roguetown/captain
+	outfit = /datum/outfit/job/captain
 	give_bank_account = 26
 	noble_income = 16
-	min_pq = 9
+	min_pq = 15
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/combat_knight.ogg'
+	social_rank = SOCIAL_RANK_NOBLE
 
-	job_traits = list(TRAIT_HEAVYARMOR, TRAIT_STEELHEARTED, TRAIT_NOBLE, TRAIT_GUARDSMAN)
+	virtue_restrictions = list(
+		/datum/virtue/utility/failed_squire,
+		/datum/virtue/utility/blacksmith, // we don't want you repairing your stuff in combat, sorry...
+	)
+	job_traits = list(TRAIT_HEAVYARMOR, TRAIT_STEELHEARTED, TRAIT_NOBLE, TRAIT_GUARDSMAN_NOBLE)
 	job_subclasses = list(
 		/datum/advclass/captain/infantry,
 		/datum/advclass/captain/cavalry
 	)
 
-/datum/outfit/job/roguetown/captain
+/datum/outfit/job/captain
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	armor = /obj/item/clothing/suit/roguetown/armor/captain
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail
@@ -60,8 +66,10 @@
 		var/honorary = "Ser"
 		if(should_wear_femme_clothes(H))
 			honorary = "Dame"
+		GLOB.chosen_names -= prev_real_name
 		H.real_name = "[honorary] [prev_real_name]"
 		H.name = "[honorary] [prev_name]"
+		GLOB.chosen_names += H.real_name
 
 		for(var/X in peopleknowme)
 			for(var/datum/mind/MF in get_minds(X))
@@ -69,16 +77,12 @@
 					MF.known_people -= prev_real_name
 					H.mind.person_knows_me(MF)
 
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/captain/infantry
 	name = "Infantry Captain"
 	tutorial = "You've fought shoulder to shoulder with the realm's worthiest Knights while embedded directly within \
 	massed infantry formations. As a peerless armed combatant and tactician both, you are a formidable presence \
 	on any battlefield."
-	outfit = /datum/outfit/job/roguetown/captain/infantry
+	outfit = /datum/outfit/job/captain/infantry
 	category_tags = list(CTAG_CAPTAIN)
 
 	subclass_stats = list(
@@ -109,7 +113,7 @@
 		/datum/skill/misc/riding = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/captain/infantry/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/captain/infantry/pre_equip(mob/living/carbon/human/H)
 	..()
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
@@ -137,7 +141,7 @@
 		"Flail & Shield",
 		"Law & Order (Sabre & Buckler)",
 		)
-	var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+	var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
 		if("Zweihander")
@@ -165,7 +169,7 @@
 	name = "Cavalry Captain"
 	tutorial = "As the first among finest you ride at the speartip of cavalier forces, barreling saiga and blades through \
 	the soft flanks and hard fronts of enemy formations, remember Agincourt, and do not hit the dirt below."
-	outfit = /datum/outfit/job/roguetown/captain/cavalry
+	outfit = /datum/outfit/job/captain/cavalry
 	horse = /mob/living/simple_animal/hostile/retaliate/rogue/saiga/saigabuck/tame/saddled
 	category_tags = list(CTAG_CAPTAIN)
 
@@ -196,7 +200,7 @@
 		/datum/skill/misc/riding = SKILL_LEVEL_EXPERT,
 	)
 
-/datum/outfit/job/roguetown/captain/cavalry/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/captain/cavalry/pre_equip(mob/living/carbon/human/H)
 	..()
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
@@ -222,7 +226,7 @@
 		"Deliverer (Glaive)", // new, unique weapon, different from the infantry captain's
 		"Lance + Kite Shield"
 		)
-	var/weapon_choice = input("Choose your weapon.", "TAKE UP ARMS") as anything in weapons
+	var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
 		if("Longsword & Recurve Bow")

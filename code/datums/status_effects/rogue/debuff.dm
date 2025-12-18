@@ -8,6 +8,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/hungryt1
 	effectedstats = list("constitution" = -1)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/hungryt1
 	name = "Hungry"
@@ -19,6 +20,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/hungryt2
 	effectedstats = list("strength" = -2, "constitution" = -2, "endurance" = -1)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/hungryt2
 	name = "Hungry"
@@ -30,44 +32,19 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/hungryt3
 	effectedstats = list("strength" = -5, "constitution" = -3, "endurance" = -2)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/hungryt3
 	name = "Hungry"
 	desc = "My body can barely hold it!"
 	icon_state = "hunger3"
 
-//SILVER DAGGER EFFECT
-
-/datum/status_effect/debuff/silver_curse
-	id = "silver_curse"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/silver_curse
-	effectedstats = list("strength" = -2,"perception" = -2,"intelligence" = -2, "constitution" = -2, "endurance" = -2, "speed" = -2)
-	duration = 45 SECONDS
-
-/atom/movable/screen/alert/status_effect/debuff/silver_curse
-	name = "Silver Curse"
-	desc = "My BANE!"
-	icon_state = "hunger3"
-
-/datum/status_effect/debuff/silver_curse_weaker
-	id = "silver_curse_weaker"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/silver_curse_weaker
-	effectedstats = list("strength" = -1,"perception" = -1,"intelligence" = -1, "speed" = -1)
-	duration = 20 SECONDS
-
-/atom/movable/screen/alert/status_effect/debuff/silver_curse_weaker
-	name = "Silver Curse, Lesser"
-	desc = "My BANE!"
-	icon_state = "hunger3"
-
-////////////////////
-
-
 /datum/status_effect/debuff/thirstyt1
 	id = "thirsty1"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/thirstyt1
 	effectedstats = list("endurance" = -1)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/thirstyt1
 	name = "Thirsty"
@@ -79,6 +56,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/thirstyt2
 	effectedstats = list("speed" = -1, "endurance" = -2)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/thirstyt2
 	name = "Thirsty"
@@ -90,6 +68,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/thirstyt3
 	effectedstats = list("strength" = -1, "speed" = -2, "endurance" = -3)
 	duration = 100
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/thirstyt3
 	name = "Thirsty"
@@ -152,7 +131,8 @@
 	id = "bleedingt1"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/bleedingt1
 	effectedstats = list("speed" = -1)
-	duration = 100
+	duration = -1
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/bleedingt1
 	name = "Dizzy"
@@ -163,7 +143,8 @@
 	id = "bleedingt2"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/bleedingt2
 	effectedstats = list("strength" = -1, "speed" = -2)
-	duration = 100
+	duration = -1
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/bleedingt2
 	name = "Faint"
@@ -174,7 +155,8 @@
 	id = "bleedingt3"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/bleedingt3
 	effectedstats = list("strength" = -3, "speed" = -4)
-	duration = 100
+	duration = -1
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/bleedingt3
 	name = "Drained"
@@ -184,6 +166,7 @@
 /datum/status_effect/debuff/sleepytime
 	id = "sleepytime"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/sleepytime
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/netted
 	name = "Net"
@@ -237,6 +220,7 @@
 /datum/status_effect/debuff/vamp_dreams
 	id = "sleepytime"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/vamp_dreams
+	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/vamp_dreams
 	name = "Insight"
@@ -290,16 +274,77 @@
 	desc = "I can barely feel my limbs!"
 	icon_state = "chilled"
 
-
-/datum/status_effect/debuff/ritesexpended
-	id = "ritesexpended"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended
+/datum/status_effect/debuff/ritesexpended_high
+	id = "ritesexpended_high"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended_high
 	duration = 30 MINUTES
 
-/atom/movable/screen/alert/status_effect/debuff/ritesexpended
+/atom/movable/screen/alert/status_effect/debuff/ritesexpended_high
 	name = "Rites Complete"
 	desc = "It will take time before I can next perform a rite."
 	icon_state = "ritesexpended"
+
+/datum/status_effect/debuff/ritesexpended_high/on_apply()
+	. = ..()
+	ADD_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_high/on_remove()
+	. = ..()
+	REMOVE_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_medium
+	id = "ritesexpended_medium"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended_medium
+	duration = 20 MINUTES
+
+/atom/movable/screen/alert/status_effect/debuff/ritesexpended_medium
+	name = "Rites Complete"
+	desc = "It will take time before I can next perform a rite."
+	icon_state = "ritesexpended"
+
+/datum/status_effect/debuff/ritesexpended_medium/on_apply()
+	. = ..()
+	ADD_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_medium/on_remove()
+	. = ..()
+	REMOVE_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_low
+	id = "ritesexpended_low"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended_low
+	duration = 10 MINUTES
+
+/atom/movable/screen/alert/status_effect/debuff/ritesexpended_low
+	name = "Rites Complete"
+	desc = "It will take time before I can next perform a rite."
+	icon_state = "ritesexpended"
+
+/datum/status_effect/debuff/ritesexpended_low/on_apply()
+	. = ..()
+	ADD_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_low/on_remove()
+	. = ..()
+	REMOVE_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_low_very
+	id = "ritesexpended_low_very"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended_low_very
+	duration = 5 MINUTES
+
+/atom/movable/screen/alert/status_effect/debuff/ritesexpended_low_very
+	name = "Rites Complete"
+	desc = "It will take time before I can next perform a rite."
+	icon_state = "ritesexpended"
+
+/datum/status_effect/debuff/ritesexpended_low_very/on_apply()
+	. = ..()
+	ADD_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
+
+/datum/status_effect/debuff/ritesexpended_low_very/on_remove()
+	. = ..()
+	REMOVE_TRAIT(owner, TRAIT_RITES_BLOCKED, TRAIT_MIRACLE)
 
 /datum/status_effect/debuff/call_to_arms
 	id = "call_to_arms"
@@ -430,6 +475,48 @@
 	duration = 1 MINUTES
 	alert_type = /atom/movable/screen/alert/status_effect/emberwine
 
+/datum/status_effect/debuff/knockout
+	id = "knockout"
+	effectedstats = null
+	alert_type = null
+	duration = 12 SECONDS
+	var/time = 0
+
+/datum/status_effect/debuff/knockout/tick()
+	time += 1
+	switch(time)
+		if(3)
+			if(prob(50)) //You don't always know...
+				var/msg = pick("I feel sleepy...", "I feel relaxed.", "My eyes feel a little heavy.")
+				to_chat(owner, span_warn(msg))
+
+		if(5)
+			if(prob(50))
+				owner.Slowdown(20)
+			else
+				owner.Slowdown(10)
+		if(8)
+			if(iscarbon(owner))
+				var/mob/living/carbon/C = owner
+				var/msg = pick("yawn", "cough", "clearthroat")
+				C.emote(msg, forced = TRUE)
+		if(12)
+			// it's possible that stacking effects delay this.
+			// If we hit 12 regardless we end
+			Destroy()
+
+
+/datum/status_effect/debuff/knockout/on_remove()
+	if(iscarbon(owner))
+		var/mob/living/carbon/C = owner
+		if(C.IsSleeping()) //No need to add more it's already pretty long.
+			return ..()
+		C.SetSleeping(20 SECONDS)
+	..()
+
+/atom/movable/screen/alert/status_effect/debuff/knockout
+	name = "Drowsy"
+
 /datum/status_effect/debuff/excomm
 	id = "Excommunicated follower of Ten!"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/excomm
@@ -453,6 +540,44 @@
 	desc = "Shame upon the member of clergy!"
 	icon_state = "debuff"
 	color ="#7a0606"
+
+// Disgraced Knight debuff for town buff cancellation: -1 END, -1 SPE, -1 PER
+/datum/status_effect/debuff/disgracedknight_town
+	id = "Disgraced Knight (Town)!"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/disgracedknight_town
+	effectedstats = list("endurance" = -1, "speed" = -1, "perception" = -1)
+	duration = 999 MINUTES
+
+/atom/movable/screen/alert/status_effect/debuff/disgracedknight_town
+	name = "Disgraced Knight!"
+	desc = "I have been stripped of my honor and knighthood!"
+	icon_state = "muscles"
+	color = "#6d1313"
+
+/datum/status_effect/debuff/disgracedknight_town/process()
+	.=..()
+	var/area/rogue/our_area = get_area(owner)
+	if(!(our_area.town_area))
+		owner.remove_status_effect(/datum/status_effect/debuff/disgracedknight_town)
+
+// Disgraced Knight debuff for keep buff cancellation: -1 CON, -1 PER
+/datum/status_effect/debuff/disgracedknight_keep
+	id = "Disgraced Knight (Keep)!"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/disgracedknight_keep
+	effectedstats = list("constitution" = -1, "perception" = -1)
+	duration = 999 MINUTES
+
+/atom/movable/screen/alert/status_effect/debuff/disgracedknight_keep
+	name = "Disgraced Knight!"
+	desc = "I have been stripped of my honor and knighthood!"
+	icon_state = "muscles"
+	color = "#6d1313"
+
+/datum/status_effect/debuff/disgracedknight_keep/process()
+	.=..()
+	var/area/rogue/our_area = get_area(owner)
+	if(!(our_area.keep_area))
+		owner.remove_status_effect(/datum/status_effect/debuff/disgracedknight_keep)
 
 /datum/status_effect/debuff/hereticsermon
 	id = "Heretic on sermon!"
@@ -483,6 +608,24 @@
 	name = "Cold"
 	desc = "Something has chilled me to the bone! It's hard to move."
 	icon_state = "muscles"
+
+/datum/status_effect/debuff/sensitivity
+	id = "Sunlight Sensitivity"
+	alert_type =  /atom/movable/screen/alert/status_effect/debuff/sensitivity
+	effectedstats = list("perception" = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/sensitivity
+	name = "Sunlight Sensitivity"
+	desc = "The sunlight is too much for your sensitive eyes!"
+	icon_state = "debuff"
+
+/datum/status_effect/debuff/sensitivity/process()
+
+	.=..()
+	var/area/rogue/our_area = get_area(owner)
+	if(!(our_area.outdoors) || GLOB.tod != "day")
+		owner.remove_status_effect(/datum/status_effect/debuff/sensitivity)
+		owner.remove_stress(/datum/stressevent/sensitivity)
 
 ///////////////////////
 /// CLIMBING STUFF ///
@@ -551,6 +694,17 @@
 	desc = ""
 	icon_state = "muscles"
 
+/datum/status_effect/debuff/mesmerised
+	id = "mesmerised"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/mesmerised
+	effectedstats = list(STATKEY_STR = -2, STATKEY_LCK = -2, STATKEY_PER = -2, STATKEY_SPD = -2)
+	duration = 30 SECONDS
+
+/atom/movable/screen/alert/status_effect/debuff/mesmerised
+	name = "Mesmerised"
+	desc = span_warning("Their beauty is otherwordly..")
+	icon_state = "acid"
+
 /////////////////////////
 ///HARPY FLIGHT STUFF///
 ///////////////////////
@@ -585,6 +739,7 @@
 	harpy.add_movespeed_modifier(MOVESPEED_ID_SPECIES, TRUE, 100, override=TRUE, multiplicative_slowdown = harpy.dna.species.speedmod)
 	harpy.apply_status_effect(/datum/status_effect/debuff/flight_sound_loop)
 	ADD_TRAIT(harpy, TRAIT_SPELLCOCKBLOCK, ORGAN_TRAIT)
+	harpy.flying = TRUE
 	init_signals()
 
 /datum/status_effect/debuff/harpy_flight/tick()
@@ -626,6 +781,7 @@
 	remove_signals()
 	animate(harpy)
 	REMOVE_TRAIT(harpy, TRAIT_SPELLCOCKBLOCK, ORGAN_TRAIT)
+	harpy.flying = FALSE
 	if(harpy.is_holding_item_of_type(/obj/item/rogueweapon/huntingknife/idagger/harpy_talons))
 		for(var/obj/item/rogueweapon/huntingknife/idagger/harpy_talons/talons in harpy.held_items)
 			harpy.dropItemToGround(talons, TRUE)
@@ -750,3 +906,19 @@
 /////////////////////////////
 ///HARPY FLIGHT STUFF END///
 ///////////////////////////
+
+/datum/status_effect/debuff/specialcd
+	id = "specialcd"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/specialcd
+	duration = 30 SECONDS
+	status_type = STATUS_EFFECT_UNIQUE
+
+/datum/status_effect/debuff/specialcd/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
+/atom/movable/screen/alert/status_effect/debuff/specialcd
+	name = "Special Manouevre Cooldown"
+	desc = "I used it. I must wait."
+	icon_state = "debuff"

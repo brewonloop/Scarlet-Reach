@@ -165,13 +165,13 @@
 	if(isliving(target))
 		var/mob/living/M = target
 		M.adjust_fire_stacks(5)
-		M.IgniteMob()
+		M.ignite_mob()
 
 /datum/component/martyrweapon/proc/on_equip(datum/source, mob/user, slot)
 	if(!allow_all)
 		if(ishuman(user))
 			var/mob/living/carbon/human/H = user
-			if(HAS_TRAIT(user, TRAIT_ROTMAN) || HAS_TRAIT(user, TRAIT_NOBREATH))	//Can't be a Martyr if you're undead already.
+			if(HAS_TRAIT(user, TRAIT_ROTMAN) || H.mob_biotypes & MOB_UNDEAD)	//Can't be a Martyr if you're undead already.
 				to_chat(H, span_warn("It burns and sizzles! It does not tolerate my pallid flesh!"))
 				H.dropItemToGround(parent)
 				return
@@ -426,14 +426,14 @@
 	faction = "Station"
 	tutorial = "Martyrs are hand-picked among the most devout of the Holy See. They are given one of the See's cherished relics to protect the Church, and to inspire hope and lead by example of grace, kindness and vicious intolerance to any who do not share the belief of the Ten. They have sworn an Oath in the sight of the gods, and will fulfill it to the bitter end."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_SECOND_CLASS_NO_GOLEM
+	allowed_races = RACES_SECOND_CLASS_UP // fuck you golen/doll martyr because it's FUNNY
 	disallowed_races = list(
 		/datum/species/lamia,
 		/datum/species/harpy,
 	)
 	allowed_patrons = ALL_DIVINE_PATRONS
-	outfit = /datum/outfit/job/roguetown/martyr
-	min_pq = 10 //Cus it's a Martyr of the Ten. Get it.
+	outfit = /datum/outfit/job/martyr
+	min_pq =  14
 	max_pq = null
 	round_contrib_points = 4
 	total_positions = 1
@@ -441,13 +441,15 @@
 	display_order = JDO_MARTYR
 	give_bank_account = TRUE
 	cmode_music = 'sound/music/combat_martyrsafe.ogg'
+	social_rank = SOCIAL_RANK_NOBLE
 
 	job_traits = list(
 		TRAIT_HEAVYARMOR,
 		TRAIT_STEELHEARTED,
 		TRAIT_SILVER_BLESSED,
 		TRAIT_EMPATH,
-		TRAIT_DUALWIELDER
+		TRAIT_DUALWIELDER,
+		TRAIT_CLERGY
 	)
 
 	//No undeath-adjacent virtues for a role that can sacrifice itself. The Ten like their sacrifices 'pure'. (I actually didn't want to code returning those virtue traits post-sword use)
@@ -455,6 +457,7 @@
 	//Dual wielder is there to stand-in for ambidextrous in case they activate their sword in their off-hand.
 	virtue_restrictions = list(
 		/datum/virtue/utility/noble,
+		/datum/virtue/utility/blueblooded,
 		/datum/virtue/combat/rotcured,
 		/datum/virtue/utility/deadened,
 		/datum/virtue/utility/deathless,
@@ -468,18 +471,10 @@
 		/datum/advclass/martyr
 	)
 
-/datum/job/roguetown/martyr/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/martyr
 	name = "Martyr"
 	tutorial = "Martyrs are hand-picked among the most devout of the Holy See. They are given one of the See's cherished relics to protect the Church, and to inspire hope and lead by example of grace, kindness and vicious intolerance to any who do not share the belief of the Ten. They have sworn an Oath in the sight of the gods, and will fulfill it to the bitter end."
-	outfit = /datum/outfit/job/roguetown/martyr/basic
+	outfit = /datum/outfit/job/martyr/basic
 	category_tags = list(CTAG_MARTYR)
 
 	subclass_stats = list(
@@ -507,10 +502,10 @@
 		/datum/skill/misc/sneaking = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/martyr
+/datum/outfit/job/martyr
 	job_bitflag = BITFLAG_CHURCH
 
-/datum/outfit/job/roguetown/martyr/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/martyr/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	shoes = /obj/item/clothing/shoes/roguetown/boots/armor
@@ -518,6 +513,7 @@
 	beltr = /obj/item/storage/keyring/priest
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/rich
 	backr = /obj/item/storage/backpack/rogue/satchel
+	backl = /obj/item/rogueweapon/shield/tower/metal/holysee
 	gloves = /obj/item/clothing/gloves/roguetown/chain
 	wrists = /obj/item/clothing/wrists/roguetown/bracers
 	neck = /obj/item/clothing/neck/roguetown/bevor
@@ -547,7 +543,7 @@
 	righthand_file = 'icons/mob/inhands/weapons/roguemartyr_righthand.dmi'
 	name = "martyr sword"
 	desc = "A relic from the Holy See's own vaults. It simmers with godly energies, and will only yield to the hands of those who have taken the Oath."
-	max_blade_int = 200
+	max_blade_int = 300
 	max_integrity = 300
 	parrysound = "bladedmedium"
 	swingsound = BLADEWOOSH_LARGE
@@ -567,6 +563,17 @@
 	is_silver = TRUE
 	toggle_state = null
 	is_important = TRUE
+
+/obj/item/rogueweapon/sword/long/martyr/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_TENNITE,\
+		silver_type = SILVER_TENNITE,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 0,\
+		added_def = 0,\
+	)
 
 /obj/item/rogueweapon/sword/long/martyr/Initialize()
 	AddComponent(/datum/component/martyrweapon)
@@ -590,7 +597,7 @@
 				visible_message(span_warning("[H] lets out a painful shriek as the sword lashes out at them!"))
 				H.emote("agony")
 				H.adjust_fire_stacks(5)
-				H.IgniteMob()
+				H.ignite_mob()
 			return FALSE
 		else	//Everyone else
 			to_chat(user, span_warning("A painful jolt across your entire body sends you to the ground. You cannot touch this thing."))
@@ -611,10 +618,11 @@
 	. = ..()
 	if(tag)
 		switch(tag)
-			if("gen") return list("shrink" = 0.6,"sx" = -14,"sy" = -8,"nx" = 15,"ny" = -7,"wx" = -10,"wy" = -5,"ex" = 7,"ey" = -6,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -13,"sturn" = 110,"wturn" = -60,"eturn" = -30,"nflip" = 1,"sflip" = 1,"wflip" = 8,"eflip" = 1)
-			if("onback") return list("shrink" = 0.6,"sx" = -2,"sy" = 3,"nx" = 0,"ny" = 2,"wx" = 2,"wy" = 1,"ex" = 0,"ey" = 1,"nturn" = 0,"sturn" = 90,"wturn" = 70,"eturn" = 15,"nflip" = 1,"sflip" = 1,"wflip" = 1,"eflip" = 1,"northabove" = 1,"southabove" = 0,"eastabove" = 0,"westabove" = 0)
-			if("wielded") return list("shrink" = 0.7,"sx" = 6,"sy" = -2,"nx" = -4,"ny" = 2,"wx" = -8,"wy" = -1,"ex" = 7,"ey" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 15,"sturn" = -200,"wturn" = -160,"eturn" = -25,"nflip" = 8,"sflip" = 8,"wflip" = 0,"eflip" = 0)
-			if("onbelt") return list("shrink" = 0.6,"sx" = -2,"sy" = -5,"nx" = 0,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = -3,"ey" = -5,"nturn" = 180,"sturn" = 180,"wturn" = 0,"eturn" = 90,"nflip" = 0,"sflip" = 0,"wflip" = 1,"eflip" = 1,"northabove" = 1,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
+			if("gen") return list("shrink" = 0.5, "sx" = -14, "sy" = -8, "nx" = 15, "ny" = -7, "wx" = -10, "wy" = -5, "ex" = 7, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = -13, "sturn" = 110, "wturn" = -60, "eturn" = -30, "nflip" = 1, "sflip" = 1, "wflip" = 8, "eflip" = 1)
+			if("wielded") return list("shrink" = 0.5,"sx" = 9,"sy" = -2,"nx" = -7,"ny" = 0,"wx" = -9,"wy" = -0.2,"ex" = 9,"ey" = -0.2,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 5,"sturn" = -190,"wturn" = -170,"eturn" = -10,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
+			if("onback") return list("shrink" = 0.5, "sx" = -1, "sy" = 2, "nx" = 0, "ny" = 2, "wx" = 2, "wy" = 1, "ex" = 0, "ey" = 1, "nturn" = 0, "sturn" = 0, "wturn" = 70, "eturn" = 15, "nflip" = 1, "sflip" = 1, "wflip" = 1, "eflip" = 1, "northabove" = 1, "southabove" = 0, "eastabove" = 0, "westabove" = 0)
+			if("onbelt") return list("shrink" = 0.4, "sx" = -4, "sy" = -6, "nx" = 5, "ny" = -6, "wx" = 0, "wy" = -6, "ex" = -1, "ey" = -6, "nturn" = 100, "sturn" = 156, "wturn" = 90, "eturn" = 180, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 0, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0)
+			if("altgrip") return list("shrink" = 0.5,"sx" = 4,"sy" = 0,"nx" = -7,"ny" = 1,"wx" = -8,"wy" = 0,"ex" = 8,"ey" = -1,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -135,"sturn" = -35,"wturn" = 45,"eturn" = 145,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
 
 /obj/item/clothing/cloak/martyr
 	name = "martyr cloak"
@@ -628,6 +636,10 @@
 	sellprice = 100
 	slot_flags = ITEM_SLOT_BACK_R|ITEM_SLOT_ARMOR|ITEM_SLOT_CLOAK
 	flags_inv = HIDECROTCH|HIDEBOOB
+
+/obj/item/clothing/cloak/martyr/ComponentInitialize()
+    . = ..()
+    AddComponent(/datum/component/storage/concrete/roguetown/cloak)
 
 /obj/item/clothing/suit/roguetown/armor/plate/full/holysee
 	name = "holy silver plate"
@@ -694,6 +706,10 @@
 	flags_inv = HIDECROTCH|HIDEBOOB
 	var/overarmor = TRUE
 	sellprice = 300
+
+/obj/item/clothing/cloak/holysee/ComponentInitialize()
+    . = ..()
+    AddComponent(/datum/component/storage/concrete/roguetown/cloak)
 
 /obj/item/clothing/cloak/holysee/MiddleClick(mob/user)
 	overarmor = !overarmor

@@ -163,6 +163,8 @@
 	///Whether this class can be clicked on for details.
 	var/class_setup_examine = TRUE
 
+	///The social rank of the job, determines the examine text when examining others or being examined
+	var/social_rank = SOCIAL_RANK_DIRT
 
 /datum/job/proc/special_job_check(mob/dead/new_player/player)
 	return TRUE
@@ -230,6 +232,9 @@
 	if(cmode_music)
 		H.cmode_music = cmode_music
 
+	if(social_rank)
+		H.social_rank = social_rank
+
 	if(H.mind.special_role == "Court Agent" || H.mind.assigned_role == "Bandit" || H.mind.assigned_role == "Wretch") //For obfuscating Court Agents & Bandits in Actors list
 		if (istype(H, /mob/living/carbon/human)) //For determining if the actor has a species name to display
 			var/mob/living/carbon/human/Hu = H 
@@ -252,6 +257,9 @@
 				GLOB.actors_list[H.mobid] = "[H.real_name] as Adventurer<BR>"
 			else
 				GLOB.actors_list[H.mobid] = "[H.real_name] as [H.mind.assigned_role]<BR>"
+
+	if(islist(advclass_cat_rolls))
+		hugboxify_for_class_selection(H)
 
 /client/verb/set_mugshot()
 	set category = "OOC"
@@ -323,7 +331,7 @@
 
 	//Equip the rest of the gear
 	H.dna.species.before_equip_job(src, H, visualsOnly)
-	H.regenerate_organs() // kinda stupid but it lets us apply a buncha shit via organs upon joining the game
+	H.apply_organ_stuff() // apply super special sauce organ stuff when we spawn in, and therefore have MIND
 	if(!outfit_override && visualsOnly && visuals_only_outfit)
 		outfit_override = visuals_only_outfit
 	if(should_wear_femme_clothes(H))
@@ -383,36 +391,55 @@
 
 /datum/outfit/job
 	name = "Standard Gear"
+	uniform = null
+	id = null
+	ears = null
+	belt = null
+	back = null
+	shoes = null
+	box = null
 
 	var/jobtype = null
-
-	back = /obj/item/storage/backpack
+	/// List of patrons we are allowed to use
+	var/list/allowed_patrons
+	/// Default patron in case the patron is not allowed
+	var/datum/patron/default_patron
+	/// This is our bitflag for storyteller rolling.
+	var/job_bitflag = NONE
+	/// Can select equipment after you spawn in.
+	var/has_loadout = FALSE
 
 /datum/outfit/job/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
-	..()
-/*	switch(H.backpack)
-		if(GBACKPACK)
-			back = /obj/item/storage/backpack //Grey backpack
-		if(GSATCHEL)
-			back = /obj/item/storage/backpack/satchel //Grey satchel
-		if(GDUFFELBAG)
-			back = /obj/item/storage/backpack/duffelbag //Grey Duffel bag
-		if(LSATCHEL)
-			back = /obj/item/storage/backpack/satchel/leather //Leather Satchel
-		if(DSATCHEL)
-			back = satchel //Department satchel
-		if(DDUFFELBAG)
-			back = duffelbag //Department duffel bag
+	. = ..()
+	var/datum/patron/old_patron = H.patron
+	if(length(allowed_patrons) && (!old_patron || !(old_patron.type in allowed_patrons)))
+		var/list/datum/patron/possiblegods = list()
+		var/list/datum/patron/preferredgods = list()
+		for(var/god in GLOB.patronlist)
+			if(!(god in allowed_patrons))
+				continue
+			possiblegods |= god
+			var/datum/patron/PA = GLOB.patronlist[god]
+			if(PA.associated_faith == old_patron.associated_faith) // prefer to pick a patron within the same faith before apostatizing
+				preferredgods |= god
+		if(length(preferredgods))
+			H.set_patron(default_patron || pick(preferredgods))
 		else
-			back = backpack //Department backpack
-
-	//converts the uniform string into the path we'll wear, whether it's the skirt or regular variant
-	var/holder
-	if(H.jumpsuit_style == PREF_SKIRT)
-		holder = "[uniform]"
-	else
-		holder = "[uniform]"
-	uniform = text2path(holder)*/
+			H.set_patron(default_patron || pick(possiblegods))
+		var/change_message = span_warning("[old_patron] had not endorsed my practices in my younger years. I've since grown accustomed to [H.patron].")
+		if(H.client)
+			to_chat(H, change_message)
+		else
+			// Characters during round start are first equipped before clients are moved into them. This is a bandaid to give an important piece of information correctly to the client
+			addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(to_chat), H, change_message), 5 SECONDS)
+	if(H.mind)
+		if(H.dna)
+			if(H.dna.species)
+				if(H.dna.species.name in list("Elf", "Half-Elf"))
+					H.adjust_skillrank(/datum/skill/misc/reading, 1, TRUE)
+				if(H.dna.species.name in list("Golem"))
+					H.adjust_skillrank(/datum/skill/craft/engineering, 2, TRUE)
+	H.update_body()
 
 /datum/outfit/job/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	if(visualsOnly)
@@ -421,6 +448,25 @@
 	var/datum/job/J = SSjob.GetJobType(jobtype)
 	if(!J)
 		J = SSjob.GetJob(H.job)
+
+	if(H.mind)
+		if(H.ckey)
+			H.mind?.job_bitflag = job_bitflag
+			if(check_crownlist(H.ckey))
+				H.mind.special_items["Champion Circlet"] = /obj/item/clothing/head/roguetown/crown/sparrowcrown
+			give_special_items(H)
+	for(var/list_key in SStriumphs.post_equip_calls)
+		var/datum/triumph_buy/thing = SStriumphs.post_equip_calls[list_key]
+		thing.on_activate(H)
+	if(has_loadout && H.mind)
+		addtimer(CALLBACK(src, PROC_REF(choose_loadout), H), 50)
+
+/datum/outfit/job/proc/choose_loadout(mob/living/carbon/human/H)
+	if(!has_loadout)
+		return
+	if(!H.client)
+		addtimer(CALLBACK(src, PROC_REF(choose_loadout), H), 50)
+		return
 
 //Warden and regular officers add this result to their get_access()
 /datum/job/proc/check_config_for_sec_maint()
@@ -435,6 +481,12 @@
 /proc/should_wear_femme_clothes(mob/living/carbon/human/H)
 	return (H.pronouns == SHE_HER || H.pronouns == THEY_THEM_F || H.pronouns == HE_HIM_F)
 // LETHALSTONE EDIT END
+
+/datum/job/proc/get_informed_title(mob/mob)
+	if(mob.gender == FEMALE && f_title)
+		return f_title
+
+	return title
 
 /datum/job/Topic(href, list/href_list)
 	if(href_list["explainjob"])

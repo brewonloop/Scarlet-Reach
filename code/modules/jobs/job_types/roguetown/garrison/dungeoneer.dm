@@ -6,6 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_races = RACES_ALL_KINDS//Dungeoneer is a freak. His race selection should allow this.
+	allowed_patrons = NON_PSYDON_PATRONS
 	allowed_sexes = list(MALE, FEMALE)
 
 	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN)
@@ -21,11 +22,12 @@
 				You fall under the garrison's command, obeying orders of the Sergeant, Knight Captain, Marshal, and the Crown. Tending to those awaiting condemning and dishing punishment are your specialties.."
 
 	announce_latejoin = FALSE
-	outfit = /datum/outfit/job/roguetown/dungeoneer
+	outfit = /datum/outfit/job/dungeoneer
 	give_bank_account = 25
-	min_pq = 0
+	min_pq = 10
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_PEASANT
 
 	cmode_music = 'sound/music/combat_dungeoneer.ogg'
 
@@ -43,21 +45,13 @@
 	for(var/X in GLOB.courtier_positions)
 		peopleknowme += X
 
-/datum/job/roguetown/dungeoneer/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
-/datum/outfit/job/roguetown/dungeoneer
+/datum/outfit/job/dungeoneer
 	job_bitflag = BITFLAG_GARRISON
 
 /datum/advclass/dungeoneer
 	name = "Dungeoneer"
 	tutorial = "Penance, filthy sense of sadism or a queer outlook on justice, something has led you to don the shunned mask and fulfill the whims of the Nobility. Their whims are your guidance, as you've no 'moral quandaries' to care for."
-	outfit = /datum/outfit/job/roguetown/dungeoneer/base
+	outfit = /datum/outfit/job/dungeoneer/base
 
 	category_tags = list(CTAG_DUNGEONEER)
 	subclass_stats = list(
@@ -80,7 +74,7 @@
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
 	)
 
-/datum/outfit/job/roguetown/dungeoneer/base/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/dungeoneer/base/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	pants = /obj/item/clothing/under/roguetown/trou/leather/mourning

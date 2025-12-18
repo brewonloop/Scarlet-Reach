@@ -1,3 +1,11 @@
+#define ULTRA_PRECISE_ZONE 1 
+#define PRECISE_ZONE 2 
+#define NO_PENALTY_ZONE 3
+#define RANGED_MAX_ULTRA_PRECISE_HIT_CHANCE 50 // No matter what max 50% chance to hit
+#define RANGED_ULTRA_PRECISE_HIT_PENALTY -25 // -25 for you - THEN we clamp.
+#define RANGED_MAX_PRECISE_HIT_CHANCE 75 // No matter what max 75% chance to hit
+#define RANGED_PRECISE_HIT_PENALTY -10 // -10 - THEN we clamp.
+
 /proc/accuracy_check(zone, mob/living/user, mob/living/target, associated_skill, datum/intent/used_intent, obj/item/I)
 	if(!zone)
 		return
@@ -15,62 +23,79 @@
 	// If you're floored, you will aim feet and legs easily. There's a check for whether the victim is laying down already.
 	if(!(user.mobility_flags & MOBILITY_STAND) && (zone in list(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG, BODY_ZONE_PRECISE_R_FOOT, BODY_ZONE_PRECISE_L_FOOT)))
 		return zone
-	if( (target.dir == turn(get_dir(target,user), 180)))
+	if((target.dir == turn(get_dir(target,user), 180)))
 		return zone
 
 	var/chance2hit = 0
 
-	if(check_zone(zone) == zone)	//Are we targeting a big limb or chest?
-		chance2hit += 10
+	var/accuracy_bonus = 15
+	var/precision_bonus = 0
 
 	chance2hit += (user.get_skill_level(associated_skill) * 8)
 
 	if(used_intent)
 		if(used_intent.blade_class == BCLASS_STAB)
-			chance2hit += 10
+			chance2hit += 6
+			precision_bonus += 8
 		if(used_intent.blade_class == BCLASS_PEEL)
 			chance2hit += 25
 		if(used_intent.blade_class == BCLASS_CUT)
-			chance2hit += 6
-		if((used_intent.blade_class == BCLASS_BLUNT || used_intent.blade_class == BCLASS_SMASH) && check_zone(zone) != zone)	//A mace can't hit the eyes very well
-			chance2hit -= 10
+			chance2hit += 5
+			accuracy_bonus += 8
+		if((used_intent.blade_class == BCLASS_BLUNT || used_intent.blade_class == BCLASS_SMASH))	//A mace can't hit the eyes very well
+			precision_bonus -= 10
+		if((used_intent.blade_class == BCLASS_PUNCH))
+			accuracy_bonus += 5
 
 	if(I)
 		if(I.wlength == WLENGTH_SHORT)
 			chance2hit += 10
+		if(I.item_flags & PEASANT_WEAPON && HAS_TRAIT(user, TRAIT_PEASANTMILITIA))
+			chance2hit += 8 //+1 skill equivalent
 
 	if(user.STAPER > 10)
 		chance2hit += (min((user.STAPER-10)*8, 40))
 
+	if(user.STAPER > 15)
+		chance2hit += (min((user.STAPER-15)*3, 15))
+
 	if(user.STAPER < 10)
-		chance2hit -= ((10-user.STAPER)*10)
+		chance2hit -= ((10-user.STAPER)*8)
+		precision_bonus -= ((10-user.STAPER)*2)
 
 	if(istype(user.rmb_intent, /datum/rmb_intent/aimed))
 		chance2hit += 20
+		precision_bonus += 5
 	if(istype(user.rmb_intent, /datum/rmb_intent/swift))
 		chance2hit -= 20
+		precision_bonus -= 5
 
 	if(HAS_TRAIT(user, TRAIT_CURSE_RAVOX))
-		chance2hit -= 30
+		chance2hit -= 25
+		precision_bonus -= 10
 
-	chance2hit = CLAMP(chance2hit, 5, 93)
+	var/accuracy_chance = CLAMP(chance2hit + accuracy_bonus, 5, 93)
+	var/precision_chance = CLAMP(chance2hit + precision_bonus, 5, 93)
 
-	if(prob(chance2hit))
-		return zone
-	else
-		if(prob(chance2hit+(user.STAPER - 10)))
-			if(check_zone(zone) == zone)
-				return zone
-			to_chat(user, span_warning("Accuracy fail! [chance2hit]%"))
-			if(user.STAPER >= 11)
-				if(user.client?.prefs.showrolls)
-					return check_zone(zone)
-			else
-				return BODY_ZONE_CHEST
+	var/precision_roll = FALSE
+	var/accuracy_roll = FALSE
+
+	accuracy_roll = prob(accuracy_chance)
+	if(accuracy_roll)
+		if(check_zone(zone) == zone)
+			return zone
 		else
-			if(user.client?.prefs.showrolls)
-				to_chat(user, span_warning("Double accuracy fail! [chance2hit]%"))
-			return BODY_ZONE_CHEST
+			precision_roll = prob(precision_chance)
+			if(precision_roll)
+				return zone
+			else
+				if(user.client?.prefs.showrolls)
+					to_chat(user, span_warning("Precision fail! [precision_chance]%"))
+				return check_zone(zone)
+	else
+		if(user.client?.prefs.showrolls)
+			to_chat(user, span_warning("Accuracy fail! [accuracy_chance]%"))
+		return BODY_ZONE_CHEST		
 
 /mob/proc/get_generic_parry_drain()
 	return 30
@@ -89,6 +114,55 @@
 		user.aftermiss()
 		return TRUE
 
+/proc/ranged_zone_difficulty(zone)
+	switch(zone)
+		//Hyper specific targetting is very difficult
+		if(BODY_ZONE_PRECISE_R_EYE, BODY_ZONE_PRECISE_L_EYE,
+		   BODY_ZONE_PRECISE_SKULL, BODY_ZONE_PRECISE_EARS,
+		   BODY_ZONE_PRECISE_NOSE, BODY_ZONE_PRECISE_MOUTH,
+		   BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND,
+		   BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT)
+			return ULTRA_PRECISE_ZONE
+
+		// Head, arms, legs are all harder to hit then chest, but doable
+		if(BODY_ZONE_HEAD, BODY_ZONE_PRECISE_NECK,
+		   BODY_ZONE_L_ARM, BODY_ZONE_R_ARM,
+		   BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
+			return PRECISE_ZONE
+
+	return NO_PENALTY_ZONE // Groin, Stomach and Chest are OK and Center of Mass.
+
+// Based on the remaining accuracy of the projectile and the aimed zone, return the zone, precise zone or chest
+/mob/living/proc/bullet_hit_accuracy_check(final_accuracy, def_zone = BODY_ZONE_CHEST)
+	// No matter what, 5% chance to hit the zone. No benefit from overaccuracy (unlikely)
+	var/zone_type = ranged_zone_difficulty(def_zone)
+	var/chance2hit = final_accuracy
+	// If you aim very precisely, you take -25 on hit chance, and then no matter what, it is clamped at 50%
+	// If you aim precisely (at limb), -10, 75% max.
+	// Aiming very precise part has a chance of hitting the parent limb instead.
+
+	switch(zone_type)
+		if(ULTRA_PRECISE_ZONE)
+			chance2hit -= RANGED_ULTRA_PRECISE_HIT_PENALTY
+			chance2hit = CLAMP(chance2hit, 5, RANGED_MAX_ULTRA_PRECISE_HIT_CHANCE)
+		if(PRECISE_ZONE)
+			chance2hit -= RANGED_PRECISE_HIT_PENALTY
+			chance2hit = CLAMP(chance2hit, 5, RANGED_MAX_PRECISE_HIT_CHANCE)
+
+	if(prob(chance2hit))
+		return def_zone
+	else if(prob(chance2hit))
+		return check_zone(def_zone)
+	else
+		return BODY_ZONE_CHEST
+
+#undef ULTRA_PRECISE_ZONE
+#undef PRECISE_ZONE
+#undef NO_PENALTY_ZONE
+#undef RANGED_MAX_PRECISE_HIT_CHANCE
+#undef RANGED_ULTRA_PRECISE_HIT_PENALTY
+#undef RANGED_MAX_ULTRA_PRECISE_HIT_CHANCE
+#undef RANGED_PRECISE_HIT_PENALTY
 
 /mob/living/proc/checkdefense(datum/intent/intenty, mob/living/user)
 	testing("begin defense")
@@ -188,6 +262,8 @@
 			else
 				if(used_weapon)
 					defender_skill = H.get_skill_level(used_weapon.associated_skill)
+					if(used_weapon.item_flags & PEASANT_WEAPON && HAS_TRAIT(H, TRAIT_PEASANTMILITIA))
+						prob2defend += 20 //Identical to +1 defender skill
 				else
 					defender_skill = H.get_skill_level(/datum/skill/combat/unarmed)
 				prob2defend += highest_defense
@@ -210,6 +286,8 @@
 						if(mind)
 							finalmod = clamp(spdmod, 0, 30)
 						prob2defend -= finalmod
+					if(intenty.masteritem.item_flags & PEASANT_WEAPON && HAS_TRAIT(U, TRAIT_PEASANTMILITIA))
+						prob2defend -= 20 //Identical to +1 attacker skill
 				else
 					attacker_skill = U.get_skill_level(/datum/skill/combat/unarmed)
 					prob2defend -= (attacker_skill * 20)
@@ -219,6 +297,12 @@
 
 			if(HAS_TRAIT(user, TRAIT_GUIDANCE))
 				prob2defend -= 20
+
+			if(HAS_TRAIT(src, TRAIT_NODEF))
+				prob2defend = 0
+
+			if(HAS_TRAIT(src, TRAIT_SLAYER))
+				prob2defend *= 0.7
 
 			// parrying while knocked down sucks ass
 			if(!(mobility_flags & MOBILITY_STAND))
@@ -292,7 +376,7 @@
 			if(weapon_parry == TRUE)
 				if(do_parry(used_weapon, drained, user)) //show message
 					if ((mobility_flags & MOBILITY_STAND))
-						var/skill_target = attacker_skill
+						var/skill_target = max(SKILL_LEVEL_JOURNEYMAN, attacker_skill)
 						if(!HAS_TRAIT(U, TRAIT_GOODTRAINER))
 							skill_target -= SKILL_LEVEL_NOVICE
 						if (can_train_combat_skill(src, used_weapon.associated_skill, skill_target))
@@ -309,7 +393,7 @@
 						else
 							attacker_skill_type = /datum/skill/combat/unarmed
 						if ((mobility_flags & MOBILITY_STAND))
-							var/skill_target = defender_skill
+							var/skill_target = max(SKILL_LEVEL_JOURNEYMAN, defender_skill)
 							if(!HAS_TRAIT(src, TRAIT_GOODTRAINER))
 								skill_target -= SKILL_LEVEL_NOVICE
 							if (can_train_combat_skill(U, attacker_skill_type, skill_target))
@@ -334,7 +418,6 @@
 						if(used_weapon == offhand)
 							intdam = INTEG_PARRY_DECAY_NOSHARP
 						used_weapon.take_damage(intdam, BRUTE, used_weapon.d_type)
-						used_weapon.remove_bintegrity(SHARPNESS_ONHIT_DECAY, user)
 					return TRUE
 				else
 					return FALSE
@@ -342,7 +425,7 @@
 			if(weapon_parry == FALSE)
 				if(do_unarmed_parry(drained, user))
 					if((mobility_flags & MOBILITY_STAND))
-						var/skill_target = attacker_skill
+						var/skill_target = max(SKILL_LEVEL_JOURNEYMAN, attacker_skill)
 						if(!HAS_TRAIT(U, TRAIT_GOODTRAINER))
 							skill_target -= SKILL_LEVEL_NOVICE
 						if(can_train_combat_skill(H, /datum/skill/combat/unarmed, skill_target))
@@ -461,15 +544,17 @@
 			if(W)
 				playsound(get_turf(src), pick(W.parrysound), 100, FALSE)
 			if(src.client)
-				GLOB.scarlet_round_stats[STATS_PARRIES]++
+				record_round_statistic(STATS_PARRIES)
 			if(istype(rmb_intent, /datum/rmb_intent/riposte))
 				src.visible_message(span_boldwarning("<b>[src]</b> ripostes [user] with [W]!"))
 			else
 				src.visible_message(span_boldwarning("<b>[src]</b> parries [user] with [W]!"))
-			if(W.max_blade_int)
-				W.remove_bintegrity(SHARPNESS_ONHIT_DECAY, user)
-			else
-				W.take_damage(INTEG_PARRY_DECAY_NOSHARP, BRUTE, "slash")
+			if(!iscarbon(user))	//Non-carbon mobs never make it to the proper parry proc where the other calculations are done.
+				if(W.max_blade_int)
+					W.remove_bintegrity(SHARPNESS_ONHIT_DECAY, user)
+					W.take_damage(INTEG_PARRY_DECAY, BRUTE, "slash")
+				else
+					W.take_damage(INTEG_PARRY_DECAY_NOSHARP, BRUTE, "slash")
 			return TRUE
 		else
 			to_chat(src, span_warning("I'm too tired to parry!"))
@@ -486,14 +571,14 @@
 			playsound(get_turf(src), pick(parry_sound), 100, FALSE)
 			src.visible_message(span_warning("<b>[src]</b> parries [user]!"))
 			if(src.client)
-				GLOB.scarlet_round_stats[STATS_PARRIES]++
+				record_round_statistic(STATS_PARRIES)
 			return TRUE
 		else
 			to_chat(src, span_boldwarning("I'm too tired to parry!"))
 			return FALSE
 	else
 		if(src.client)
-			GLOB.scarlet_round_stats[STATS_PARRIES]++
+			record_round_statistic(STATS_PARRIES)
 		playsound(get_turf(src), pick(parry_sound), 100, FALSE)
 		return TRUE
 
@@ -551,6 +636,12 @@
 
 		if(HAS_TRAIT(U, TRAIT_GUIDANCE))
 			prob2defend -= 20
+
+		if(HAS_TRAIT(L, TRAIT_NODEF))
+			prob2defend = 0 
+
+		if(HAS_TRAIT(L, TRAIT_SLAYER))
+			prob2defend *= 0.7
 
 		// dodging while knocked down sucks ass
 		if(!(L.mobility_flags & MOBILITY_STAND))
@@ -746,10 +837,10 @@
 	if(!IU)	//The opponent is trying to rawdog us with their bare hands while we have Guard up. We get a free attack on their active hand.
 		var/obj/item/bodypart/affecting = H.get_bodypart("[(user.active_hand_index % 2 == 0) ? "r" : "l" ]_arm")
 		var/force = get_complex_damage(IM, src)
-		var/armor_block = H.run_armor_check(BODY_ZONE_PRECISE_L_HAND, used_intent.item_d_type, armor_penetration = used_intent.penfactor, damage = force)
+		var/armor_block = H.run_armor_check(BODY_ZONE_PRECISE_L_HAND, used_intent.item_d_type, armor_penetration = used_intent.penfactor, damage = force, used_weapon = IM)
 		if(H.apply_damage(force, IM.damtype, affecting, armor_block))
 			visible_message(span_suicide("[src] gores [user]'s hands with \the [IM]!"))
-			affecting.bodypart_attacked_by(used_intent.blade_class, force, crit_message = TRUE)
+			affecting.bodypart_attacked_by(used_intent.blade_class, force, crit_message = TRUE, weapon = IM)
 		else
 			visible_message(span_suicide("[src] clashes into [user]'s hands with \the [IM]!"))
 		playsound(src, pick(used_intent.hitsound), 80)
@@ -758,27 +849,22 @@
 	if(H.has_status_effect(/datum/status_effect/buff/clash))	//They also have Clash active. It'll trigger the special event.
 		clash(user, IM, IU)
 	else	//Otherwise, we just riposte them.
-		var/sharpnesspenalty = SHARPNESS_ONHIT_DECAY * 5
+		var/sharpnesspenalty = 0.15
 		if(IM.wbalance == WBALANCE_HEAVY || IU.blade_dulling == DULLING_SHAFT_CONJURED)
-			sharpnesspenalty *= 2
+			sharpnesspenalty += 0.05
 		if(IU.max_blade_int)
-			IU.remove_bintegrity(sharpnesspenalty, user)
+			IU.remove_bintegrity((IU.blade_int * sharpnesspenalty), user)
 		else
-			var/integdam = INTEG_PARRY_DECAY_NOSHARP * 5
+			var/integdam = max((IU.max_integrity / 5), (INTEG_PARRY_DECAY_NOSHARP * 5))
 			if(IU.blade_dulling == DULLING_SHAFT_CONJURED)
 				integdam *= 2
 			IU.take_damage(integdam, BRUTE, IM.d_type)
 		visible_message(span_suicide("[src] ripostes [H] with \the [IM]!"))
 		playsound(src, 'sound/combat/clash_struck.ogg', 100)
-		var/staminadef = (stamina * 100) / max_stamina
-		var/staminaatt = (H.stamina * 100) / H.max_stamina
-		if(staminadef > staminaatt)
-			H.apply_status_effect(/datum/status_effect/debuff/exposed, 2 SECONDS)
-			H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
-			H.Slowdown(3)
-			to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
-		else
-			H.changeNext_move(CLICK_CD_MELEE)
+		H.apply_status_effect(/datum/status_effect/debuff/exposed, 3 SECONDS)
+		H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
+		H.Slowdown(3)
+		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
 		apply_status_effect(/datum/status_effect/buff/adrenaline_rush)
 		purge_peel(GUARD_PEEL_REDUCTION)
@@ -859,7 +945,6 @@
 		S.start()
 		var/success
 		if(prob(prob_us))
-			HU.remove_status_effect(/datum/status_effect/buff/clash)
 			HU.play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_us.ogg', y_offset = 24)
 			disarmed(IM)
 			Slowdown(5)
@@ -867,7 +952,6 @@
 		if(prob(prob_opp))
 			HU.disarmed(IU)
 			HU.Slowdown(5)
-			remove_status_effect(/datum/status_effect/buff/clash)
 			play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_opp.ogg', y_offset = 24)
 			success = TRUE
 		if(!success)
@@ -883,6 +967,9 @@
 	remove_status_effect(/datum/status_effect/buff/clash)
 	HU.remove_status_effect(/datum/status_effect/buff/clash)
 
+///Proc that will try to throw the src's held I and throw it 1 - 5 tiles to their side. 
+///At the moment it doesn't have a get_active_held_item() failsafe, so the I has to be defined first.
+///This is due to, uh, bad code.
 /mob/living/carbon/human/proc/disarmed(obj/item/I)
 	visible_message(span_suicide("[src] is disarmed!"),
 					span_boldwarning("I'm disarmed!"))
@@ -894,16 +981,18 @@
 	throw_item(target_turf, FALSE)
 	apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 
-/mob/living/carbon/human/proc/bad_guard(msg, cheesy = FALSE)
-	stamina_add(((max_stamina * BAD_GUARD_FATIGUE_DRAIN) / 100))
-	if(cheesy)	//We tried to hit someone with Guard up. Unfortunately this must be super punishing to prevent cheese.
-		energy_add(-((max_energy * BAD_GUARD_FATIGUE_DRAIN) / 100))
+///Proc that cancels Riposte with a small stamina penalty, unless it's an extreme case.
+/mob/living/carbon/human/proc/bad_guard(msg, cheesy = FALSE, custom_value)
+	stamina_add(((max_stamina * (custom_value ? custom_value : BAD_GUARD_FATIGUE_DRAIN)) / 100))
+	if(cheesy)	//We tried to hit someone with Riposte (Not Limb Guard) up. Unfortunately this must be super punishing to prevent cheese.
+		energy_add(-((max_energy * (custom_value ? custom_value : BAD_GUARD_FATIGUE_DRAIN)) / 100))
 		Immobilize(2 SECONDS)
 	if(msg)
 		to_chat(src, msg)
 		emote("strain", forced = TRUE)
 	remove_status_effect(/datum/status_effect/buff/clash)
 
+///Reduces Peel by some amount. Usually called after waiting out of combat for a while or by other effects (riposte / bait)
 /mob/living/carbon/human/proc/purge_peel(amt)
 	//Equipment slots manually picked out cus we don't have a proc for this apparently
 	var/list/slots = list(wear_armor, wear_pants, wear_wrists, wear_shirt, gloves, head, shoes, wear_neck, wear_mask, wear_ring)
@@ -936,12 +1025,24 @@
 			return TRUE
 	return FALSE
 
+///Purges the singular possible bait stack after waiting for a bit out of combat.
 /mob/living/carbon/human/proc/purge_bait()
 	if(!cmode)
 		if(bait_stacks > 0)
 			bait_stacks = 0
 			to_chat(src, span_info("My focus and balance returns. I won't lose my footing if I am baited again."))
 
+///Called by a timer after toggling cmode off.
+/mob/living/carbon/human/proc/expire_peel()
+	if(!cmode)
+		purge_peel(99)
+
+///A Unique Stat comparison between src and HT.
+///It takes the highest stats up to 14 and lowest stats 'up to' 14.
+///It compares the highest and the lowest of both targets and adds them to the probability.
+///-Lower- stats are multiplied by 3. Higher stats are added as-is.
+///This in essence favors someone with a more balanced statblock rather than someone who is specced 16+ into one, and 7 elsewhere.
+///eg (14 Hi. & 7 Lo.) will be at a disadvantage vs (11 Hi. & 10 Lo.) (14 + 21) vs (11 + 30)
 /mob/living/carbon/human/proc/measured_statcheck(mob/living/carbon/human/HT)
 	var/finalprob = 40
 

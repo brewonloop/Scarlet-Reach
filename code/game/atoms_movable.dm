@@ -35,6 +35,8 @@
 	glide_size = 6
 	appearance_flags = TILE_BOUND|PIXEL_SCALE
 	var/datum/forced_movement/force_moving = null	//handled soley by forced_movement.dm
+	///Holds information about any movement loops currently running/waiting to run on the movable. Lazy, will be null if nothing's going on (pulled in from Vanderlin)
+	var/datum/movement_packet/move_packet
 	var/movement_type = GROUND		//Incase you have multiple types, you automatically use the most useful one. IE: Skating on ice, flippers on water, flying over chasm/space, etc.
 	var/atom/movable/pulling
 	var/nodirchange = FALSE
@@ -177,6 +179,9 @@
 		if(!supress_message)
 			M.visible_message("<span class='warning'>[src] grabs [M].</span>", \
 				"<span class='danger'>[src] grabs you.</span>")
+	if(istype(AM, /mob/living/simple_animal))
+		var/mob/living/simple_animal/simple_animal = AM
+		simple_animal.toggle_ai(AI_ON)
 	return TRUE
 
 /atom/movable/proc/stop_pulling(forced = TRUE)
@@ -419,20 +424,6 @@
 		update_parallax_contents()
 	var/turf/old_turf = get_turf(OldLoc)
 	var/turf/new_turf = get_turf(src)
-
-	if(HAS_SPATIAL_GRID_CONTENTS(src))
-		if(old_turf && new_turf && (old_turf.z != new_turf.z \
-			|| GET_SPATIAL_INDEX(old_turf.x) != GET_SPATIAL_INDEX(new_turf.x) \
-			|| GET_SPATIAL_INDEX(old_turf.y) != GET_SPATIAL_INDEX(new_turf.y)))
-
-			SSspatial_grid.exit_cell(src, old_turf)
-			SSspatial_grid.enter_cell(src, new_turf)
-
-		else if(old_turf && !new_turf)
-			SSspatial_grid.exit_cell(src, old_turf)
-
-		else if(new_turf && !old_turf)
-			SSspatial_grid.enter_cell(src, new_turf)
 
 	if(HAS_SPATIAL_GRID_CONTENTS(src))
 		if(old_turf && new_turf && (old_turf.z != new_turf.z \
@@ -832,15 +823,22 @@ GLOBAL_VAR_INIT(pixel_diff_time, 1)
 	animate(src, pixel_x = pixel_x + pixel_x_diff, pixel_y = pixel_y + pixel_y_diff, transform=rotated_transform, time = GLOB.pixel_diff_time, easing=LINEAR_EASING, flags = ANIMATION_PARALLEL)
 	animate(pixel_x = pixel_x - pixel_x_diff, pixel_y = pixel_y - pixel_y_diff, transform=initial_transform, time = GLOB.pixel_diff_time * 2, easing=SINE_EASING, flags = ANIMATION_PARALLEL)
 
-/atom/movable/proc/do_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, no_effect, item_animation_override = null, datum/intent/used_intent, simplified = FALSE)
+/atom/movable/proc/do_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, no_effect, item_animation_override = null, datum/intent/used_intent = null, simplified = FALSE)
+	var/animation_type = item_animation_override || used_intent?.get_attack_animation_type()
 	if(used_item || !simplified)
-		var/animation_type = item_animation_override || used_intent?.get_attack_animation_type()
-		do_item_attack_animation(A, visual_effect_icon, used_item, animation_type = animation_type)
-		return
+		if(used_intent?.swingdelay)
+			//draw_swingdelay(A, used_intent.custom_swingdelay, used_intent.swingdelay)
+			if(isliving(src))
+				var/mob/living/L = src
+				L.play_overhead_indicator_flick('icons/mob/mob_effects.dmi', "eff_swingdelay", used_intent?.swingdelay, MOB_EFFECT_LAYER_SWINGDELAY, y_offset = 3)
+				addtimer(CALLBACK(src, PROC_REF(do_item_attack_animation), A, visual_effect_icon, used_item, animation_type), used_intent.swingdelay)
+		else
+			do_item_attack_animation(A, visual_effect_icon, used_item, animation_type = animation_type, used_intent = used_intent)
+			return
 	wiggle(A)
 
 
-/atom/movable/proc/do_item_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, animation_type = ATTACK_ANIMATION_SWIPE)
+/atom/movable/proc/do_item_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, animation_type = ATTACK_ANIMATION_SWIPE, datum/intent/used_intent)
 	if(used_item)
 		if(used_item.no_effect)
 			return
@@ -851,6 +849,10 @@ GLOBAL_VAR_INIT(pixel_diff_time, 1)
 	if (isnull(used_item))
 		return
 	var/dist = get_dist(src, A)
+	if(dist > used_intent?.reach)
+		do_attack_animation_simple(get_step(src, src.dir), visual_effect_icon)	//We whiff it directly in front of us and leave it at that
+		wiggle(A)
+		return
 	if(dist <= 1)
 		var/image/attack_image = image(icon = used_item, icon_state = used_item.icon_state)
 		attack_image.plane = A.plane + 1
@@ -993,18 +995,47 @@ GLOBAL_VAR_INIT(pixel_diff_time, 1)
 				animate(attack, pixel_y = 3 * y_sign * angle_mult, time = 0.2 SECONDS, easing = CIRCULAR_EASING | EASE_IN, flags = ANIMATION_PARALLEL)
 				animate(pixel_y = y_return, time = 0.2 SECONDS, easing = CIRCULAR_EASING | EASE_OUT)
 	else
-		//Oldschool indicators.
-		var/turf/first_step = get_step(src, get_dir(src, A))
-		var/obj/effect/temp_visual/dir_setting/attack_effect/firstatk = new(first_step, get_dir(src, A))
+		do_attack_animation_simple(A, visual_effect_icon)
+
+	///Oldschool indicators. Used by non-weapon intents or simple mobs.
+/atom/movable/proc/do_attack_animation_simple(atom/A, visual_effect_icon, wiggle = TRUE)
+	var/newdir = get_dir(src, A)
+	var/turf/first_step = get_step(src, newdir)
+	var/obj/effect/temp_visual/dir_setting/attack_effect/firstatk = new(first_step, newdir)
+	firstatk.icon_state = visual_effect_icon
+	firstatk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	var/dist = get_dist(src, A)
+	if(dist > 1)	//2+ tiles, we trace a path to the target.
+		for(var/i = 1, i<dist, i++)
+			newdir = get_dir(first_step, A)
+			var/turf/next_step = get_step(first_step, newdir)
+			var/obj/effect/temp_visual/dir_setting/attack_effect/atk = new(next_step, newdir)
+			atk.icon_state = visual_effect_icon
+			atk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+			first_step = next_step
+	if(wiggle)
+		wiggle(A)
+
+///Bit of a shoddy copy paste specifically for more static swingdelays
+/atom/movable/proc/draw_swingdelay(atom/A, visual_effect_icon, delay)
+	var/newdir = get_dir(src, A)
+	var/turf/first_step = get_step(src, newdir)
+	var/obj/effect/temp_visual/swingdelay/firstatk = new(first_step, delay)
+	firstatk.duration = delay
+	if(visual_effect_icon)
 		firstatk.icon_state = visual_effect_icon
-		firstatk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-		if(dist > 1)	//2+ tiles, we trace a path to the target.
-			for(var/i = 1, i<dist, i++)
-				var/turf/next_step = get_step(first_step, get_dir(first_step, A))
-				var/obj/effect/temp_visual/dir_setting/attack_effect/atk = new(next_step, get_dir(first_step, A))
+	firstatk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	var/dist = get_dist(src, A)
+	if(dist > 1)	//2+ tiles, we trace a path to the target.
+		for(var/i = 1, i<dist, i++)
+			newdir = get_dir(first_step, A)
+			var/turf/next_step = get_step(first_step, newdir)
+			var/obj/effect/temp_visual/swingdelay/atk = new(next_step, delay)
+			atk.duration = delay
+			if(visual_effect_icon)
 				atk.icon_state = visual_effect_icon
-				atk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-				first_step = next_step
+			atk.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+			first_step = next_step
 
 /obj/effect/temp_visual/dir_setting/attack_effect
 	icon = 'icons/effects/effects.dmi'

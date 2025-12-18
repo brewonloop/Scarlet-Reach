@@ -88,6 +88,12 @@
 	name = "sailor's pants"
 	icon_state = "sailorpants"
 
+/obj/item/clothing/under/roguetown/tights/explorerpants
+	name = "explorer's pants"
+	desc = "Practical and modest, you hope that it will survive the next cavedive."
+	icon_state = "explorerpants"
+	item_state = "explorerpants"
+
 /obj/item/clothing/under/roguetown/webs
 	name = "webbing"
 	desc = "a fine webbing made from spidersilk, popular fashion within the underdark"
@@ -275,6 +281,12 @@
 /obj/item/clothing/under/roguetown/skirt/brown
 	color = CLOTHING_BROWN
 
+/obj/item/clothing/under/roguetown/skirt/desert
+	name = "desert skirt"
+	desc = "At least it cools me off, but what of the modesty?"
+	icon_state = "desertskirt"
+	item_state = "desertskirt"
+
 /obj/item/clothing/under/roguetown/chainlegs
 	name = "steel chain chausses"
 	desc = "Chain leggings composed of interlinked metal rings."
@@ -403,7 +415,7 @@
 	if(!HAS_TRAIT(user, TRAIT_HORDE))
 		to_chat(user, "<font color='red'>UNWORTHY HANDS TOUCHING THIS ARMOR, CEASE OR BE RENDED ASUNDER!</font>")
 		user.adjust_fire_stacks(5)
-		user.IgniteMob()
+		user.ignite_mob()
 		user.Stun(40)
 	..()
 
@@ -635,3 +647,20 @@
 	name = "carapace plated skirt"
 	icon_state = "carapace_skirt"
 	item_state = "carapace_skirt"
+
+/obj/item/clothing/under/roguetown/tights/ogre
+	name = "giant pants"
+	desc = "These pants provide a vital service to society"
+	sleeved = 'icons/roguetown/clothing/onmob/helpers/32x64/ogre_onmob_sleeves.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_pants"
+	allowed_race = OGRE_RACE_TYPES
+	max_integrity = 250
+
+/obj/item/clothing/under/roguetown/chainlegs/ogre
+	name = "giant chain chausses"
+	desc = "The amount of chainmail used for these could make a regular sized hauberk for a humble town guard."
+	sleeved = 'icons/roguetown/clothing/onmob/helpers/32x64/ogre_onmob_sleeves.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_chain"
+	allowed_race = OGRE_RACE_TYPES

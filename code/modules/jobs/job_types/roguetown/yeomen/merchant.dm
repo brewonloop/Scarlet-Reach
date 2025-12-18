@@ -11,14 +11,15 @@
 
 	display_order = JDO_MERCHANT
 
-	outfit = /datum/outfit/job/roguetown/merchant
+	outfit = /datum/outfit/job/merchant
 	give_bank_account = 22
 	noble_income = 100 // Guild Support - The sole Money Role outside of the keep, should help them keep pace a bit + pick up if they get completely knocked out of coin.
-	min_pq = 1 //"Yeah...my guy says the best I can do is one PQ, final offer"
+	min_pq = 10
 	max_pq = null
 	required = TRUE
 	round_contrib_points = 3
 	cmode_music = 'sound/music/combat_noble.ogg'
+	social_rank = SOCIAL_RANK_YEOMAN
 
 
 	virtue_restrictions = list(/datum/virtue/utility/blacksmith)
@@ -30,21 +31,13 @@
 		/datum/advclass/merchant
 	)
 
-/datum/job/roguetown/merchant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/merchant
 	name = "Merchant"
 	tutorial = "You were born into wealth, learning from before you could talk about the basics of mathematics. \
 	Counting coins is a simple pleasure for any person, but you've made it an art form. \
 	These people are addicted to your wares, and you are the literal beating heart of this economy: \
 	Don't let these filth-covered troglodytes ever forget that."
-	outfit = /datum/outfit/job/roguetown/merchant/basic
+	outfit = /datum/outfit/job/merchant/basic
 	category_tags = list(CTAG_MERCH)
 
 	subclass_stats = list(
@@ -70,7 +63,7 @@
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/merchant/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/merchant/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 

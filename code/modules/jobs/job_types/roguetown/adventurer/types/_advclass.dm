@@ -34,6 +34,9 @@
 	/// Extra fluff added to the role explanation in class selection.
 	var/extra_context
 
+	/// Set to FALSE to skip apply_character_post_equipment() which applies virtue, flaw, loadout
+	var/applies_post_equipment = TRUE
+
 	/// Subclass skills. Levelled UP TO.
 	var/list/subclass_skills
 
@@ -42,6 +45,9 @@
 
 	/// Spellpoints. If More than 0, Gives Prestidigitation & the Learning Spell.
 	var/subclass_spellpoints = 0
+
+	/// Subclass social rank, used to overwrite the job social rank
+	var/subclass_social_rank
 
 /datum/advclass/proc/equipme(mob/living/carbon/human/H)
 	// input sleeps....
@@ -82,9 +88,13 @@
 	if(subclass_spellpoints > 0)
 		H.mind?.adjust_spellpoints(subclass_spellpoints)
 
+	if(subclass_social_rank)
+		H.social_rank = subclass_social_rank
+
 	// After the end of adv class equipping, apply a SPECIAL trait if able
 
-	apply_character_post_equipment(H)
+	if(applies_post_equipment)
+		apply_character_post_equipment(H)
 
 /datum/advclass/proc/post_equip(mob/living/carbon/human/H)
 	addtimer(CALLBACK(H,TYPE_PROC_REF(/mob/living/carbon/human, add_credit), TRUE), 20)

@@ -1,5 +1,5 @@
 /////////////////////////////
-// ! Player / Donar Kits ! //
+// ! Player / Donor Kits ! //
 /////////////////////////////
 
 //Kumie donator item - Aristocratic boots
@@ -25,3 +25,24 @@
 	name = "'Aristocratic Coat' morphing elixer'"
 	target_items = list(/obj/item/clothing/shoes/roguetown/boots/leather/reinforced)
 	result_item = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/aristocratic
+
+//Doomday1236 donator item - Worn Rontz-focused Staff
+
+/obj/item/enchantingkit/doomday1236
+	name = "'worn rontz-focused staff' morphing elixer'"
+	target_items = list(/obj/item/rogueweapon/woodstaff)
+	result_item = /obj/item/rogueweapon/woodstaff/ruby/shepard
+
+//Vizendel donator item - Scarred Warscholar's Mask
+
+/obj/item/enchantingkit/vizendel
+	name = "'scarred warscholar's mask' morphing elixer'"
+	target_items = list(/obj/item/clothing/mask/rogue/lordmask/naledi)
+	result_item = /obj/item/clothing/mask/rogue/lordmask/naledi/viz
+
+//Invyicta donator item - Silk of the Archmage
+
+/obj/item/enchantingkit/invyicta_dress
+	name = "'Silk of the Archmage' morphing elixer'"
+	target_items = list(/obj/item/clothing/suit/roguetown/shirt/dress/silkydress)
+	result_item = /obj/item/clothing/suit/roguetown/shirt/dress/silkydress/invyicta

@@ -6,6 +6,7 @@
 	total_positions = 75
 	spawn_positions = 75
 	allowed_races = RACES_ALL_KINDS
+	disallowed_races = /datum/species/ogre
 	tutorial = "You've lived in this shithole for effectively all your life. You are not an explorer, nor exactly a warrior in many cases. You're just some average poor bastard who thinks they'll be something someday. Respect the nobles and yeomen alike for they are your superiors - should you find yourself in trouble your Elder is your best hope."
 	advclass_cat_rolls = list(CTAG_TOWNER = 20)
 	outfit = null
@@ -23,14 +24,7 @@
 	same_job_respawn_delay = 0
 	class_setup_examine = FALSE	//Nooo thank you
 	cmode_music = 'sound/music/combat_towner.ogg'
-
-/datum/job/roguetown/villager/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(L)
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
+	social_rank = SOCIAL_RANK_PEASANT
 
 /*
 /datum/job/roguetown/adventurer/villager/New()

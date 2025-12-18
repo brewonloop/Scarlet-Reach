@@ -20,6 +20,7 @@
 	name = "Amputate"
 	implements = list(
 		TOOL_SCALPEL = 80,
+		TOOL_IMPROVISED_SCALPEL = 70,
 		TOOL_SAW = 60,
 		TOOL_IMPROVISED_SAW = 50,
 		TOOL_SHARP = 40,
@@ -34,6 +35,7 @@
 	target_mobtypes = list(/mob/living/carbon/human, /mob/living/carbon/monkey)
 	time = 6.4 SECONDS
 	surgery_flags = SURGERY_INCISED | SURGERY_BROKEN
+	surgery_flags_blocked = SURGERY_CONSTRUCT
 	requires_bodypart_type = NONE
 	skill_min = SKILL_LEVEL_APPRENTICE
 	skill_median = SKILL_LEVEL_JOURNEYMAN

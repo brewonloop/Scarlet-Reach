@@ -215,7 +215,7 @@
 	salvage_result = /obj/item/natural/hide/cured
 	sewrepair = TRUE
 
-/obj/item/clothing/shoes/roguetown/grenzelhoft
+/obj/item/clothing/shoes/roguetown/boots/grenzelhoft
 	name = "grenzelhoft boots"
 	icon_state = "grenzelboots"
 	item_state = "grenzelboots"
@@ -264,7 +264,7 @@
 	if(!HAS_TRAIT(user, TRAIT_HORDE))
 		to_chat(user, "<font color='red'>UNWORTHY HANDS TOUCHING THIS ARMOR, CEASE OR BE RENDED ASUNDER!</font>")
 		user.adjust_fire_stacks(5)
-		user.IgniteMob()
+		user.ignite_mob()
 		user.Stun(40)
 	..()
 
@@ -457,7 +457,7 @@
 	anvilrepair = /datum/skill/craft/carpentry
 
 
-//kazen update
+//kazengun stuff
 /obj/item/clothing/shoes/roguetown/armor/rumaclan
 	name = "raised sandals"
 	desc = "A pair of strange sandals that push you off the ground."
@@ -484,3 +484,35 @@
 	anvilrepair = null
 	smeltresult = /obj/item/ash
 	sewrepair = TRUE
+
+/obj/item/clothing/shoes/roguetown/armor/geta
+	name = "geta"
+	desc = "A normal wooden geta most suitable for those who need to roam"
+	icon_state = "geta"
+	item_state = "geta"
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
+	max_integrity = 150
+	armor = ARMOR_BOOTS
+	anvilrepair = /datum/skill/craft/carpentry
+
+/obj/item/clothing/shoes/roguetown/armor/ogre
+	name = "giant plate boots"
+	desc = "When giants march to war, they need two things above all else. Something to eat, and boots to stomp around."
+	sleeved = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_plateboots"
+	allowed_race = OGRE_RACE_TYPES
+	max_integrity = 250
+	armor = ARMOR_BOOTS_PLATED_IRON
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
+
+/obj/item/clothing/shoes/roguetown/boots/ogre
+	name = "oversized boots"
+	desc = "The hardest working set of boots this side of the mountains."
+	sleeved = 'icons/roguetown/clothing/onmob/helpers/32x64/ogre_onmob_sleeves.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/32x64/ogre_onmob.dmi'
+	icon_state = "ogre_boots"
+	allowed_race = OGRE_RACE_TYPES
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)	//Same as gloves
+	max_integrity = 150	
+	armor = ARMOR_BOOTS

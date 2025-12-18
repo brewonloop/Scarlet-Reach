@@ -4,6 +4,7 @@
 GLOBAL_LIST_EMPTY(patronlist)
 GLOBAL_LIST_EMPTY(patrons_by_faith)
 GLOBAL_LIST_EMPTY(preference_patrons)
+GLOBAL_LIST_EMPTY(prayers)
 
 /datum/patron
 	/// Name of the god
@@ -32,6 +33,9 @@ GLOBAL_LIST_EMPTY(preference_patrons)
 	/// List of traits associated with rank. Trait = Cleric_Tier
 	var/list/traits_tier = list()
 
+	/// List of lines we can pick for miracle healing, for flavor and stuff.
+	var/list/miracle_healing_lines = list()
+
 	var/datum/storyteller/storyteller
 
 /datum/patron/proc/on_gain(mob/living/pious)
@@ -40,6 +44,8 @@ GLOBAL_LIST_EMPTY(preference_patrons)
 	if(HAS_TRAIT(pious, TRAIT_XYLIX))
 		pious.grant_language(/datum/language/thievescant)
 		pious.verbs += /mob/living/carbon/human/proc/emote_ffsalute
+	if (HAS_TRAIT(pious, TRAIT_COMMIE))
+		pious.grant_language(/datum/language/thievescant) // the thieves god people get god damn thieves cant.
 	if (HAS_TRAIT(pious, TRAIT_CABAL))
 		pious.faction |= "cabal"
 
@@ -90,19 +96,25 @@ GLOBAL_LIST_EMPTY(preference_patrons)
         follower.mob_timers[MT_PSYPRAY] = world.time
 
     . = TRUE //the prayer has succeeded by this point forward
+    GLOB.prayers |= prayer
+    record_round_statistic(STATS_PRAYERS_MADE)
 
-    var/regex/p_name = regex("([patron_name])", "im")
-    if(p_name.Find(prayer))
+    if(findtext(prayer, name))
         reward_prayer(follower)
 
 /// The follower has somehow offended the patron and is now being punished.
 /datum/patron/proc/punish_prayer(mob/living/follower)
-	follower.adjust_divine_fire_stacks(20)
-	follower.IgniteMob()
+	follower.adjust_fire_stacks(20, /datum/status_effect/fire_handler/fire_stacks/divine)
+	follower.ignite_mob()
 	follower.add_stress(/datum/stressevent/psycurse)
+	record_round_statistic(STATS_PEOPLE_SMITTEN)
 
 /// The follower has prayed in a special way to the patron and is being rewarded.
 /datum/patron/proc/reward_prayer(mob/living/follower)
 	SHOULD_CALL_PARENT(TRUE)
 	follower.playsound_local(follower, 'sound/misc/notice (2).ogg', 100, FALSE)
 	follower.add_stress(/datum/stressevent/psyprayer)
+
+/// Can we benefit from a situational bonus to our miracles? Returns a list where [0] is TRUE/FALSE and [1] is the bonus.
+/datum/patron/proc/situational_bonus(mob/living/follower, mob/living/target)
+	return list(FALSE, 0)

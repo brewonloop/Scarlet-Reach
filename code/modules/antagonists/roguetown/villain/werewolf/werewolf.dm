@@ -29,10 +29,7 @@
 	if(istype(examined_datum, /datum/antagonist/werewolf))
 		return span_boldnotice("An elder lupine kin.")
 	if(examiner.Adjacent(examined))
-		if(istype(examined_datum, /datum/antagonist/vampirelord/lesser))
-			if(transformed)
-				return span_boldwarning("A lesser Vampire.")
-		if(istype(examined_datum, /datum/antagonist/vampirelord))
+		if(istype(examined_datum, /datum/antagonist/vampire))
 			if(transformed)
 				return span_boldwarning("An Ancient Vampire. I must be careful!")
 
@@ -75,7 +72,7 @@
 /mob/living/carbon/human/proc/can_werewolf()
 	if(!mind)
 		return FALSE
-	if(mind.has_antag_datum(/datum/antagonist/vampirelord))
+	if(mind.has_antag_datum(/datum/antagonist/vampire))
 		return FALSE
 	if(mind.has_antag_datum(/datum/antagonist/werewolf))
 		return FALSE
@@ -111,14 +108,14 @@
 /mob/living/carbon/human/proc/werewolf_feed(mob/living/carbon/human/target, healing_amount = 10)
 	if(!istype(target))
 		return
-	if(src.has_status_effect(/datum/status_effect/debuff/silver_curse))
+	if(has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder) || has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder/blessed))
 		to_chat(src, span_notice("My power is weakened, I cannot heal!"))
 		return
 	if(target.mind)
 		if(target.mind.has_antag_datum(/datum/antagonist/zombie))
 			to_chat(src, span_warning("I should not feed on rotten flesh."))
 			return
-		if(target.mind.has_antag_datum(/datum/antagonist/vampirelord))
+		if(target.mind.has_antag_datum(/datum/antagonist/vampire))
 			to_chat(src, span_warning("I should not feed on corrupted flesh."))
 			return
 		if(target.mind.has_antag_datum(/datum/antagonist/werewolf))

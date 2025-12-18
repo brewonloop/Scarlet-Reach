@@ -40,10 +40,28 @@
 	/// Icon for sheathing. Only null for weapons that are unsheathable.
 	var/sheathe_icon = null
 
+	/// Special datum holder
+	var/datum/special_intent/special
+
 /obj/item/rogueweapon/Initialize()
 	. = ..()
 	if(!destroy_message)
 		destroy_message = span_warning("\The [src] shatters!")
+
+	if(ispath(special))
+		special = new special()
+
+/obj/item/rogueweapon/ComponentInitialize()
+	if(is_silver) // By default, silver weapons are supposed to be blesseable.
+		AddComponent(\
+			/datum/component/silverbless,\
+			pre_blessed = BLESSING_NONE,\
+			silver_type = SILVER_TENNITE,\
+			added_force = 0,\
+			added_blade_int = 0,\
+			added_int = 25,\
+			added_def = 2,\
+		)
 
 /obj/item/rogueweapon/get_examine_string(mob/user, thats = FALSE)
 	return "[thats? "That's ":""]<b>[get_examine_name(user)]</b> <font size = 1>[get_blade_dulling_text(src)]</font>"

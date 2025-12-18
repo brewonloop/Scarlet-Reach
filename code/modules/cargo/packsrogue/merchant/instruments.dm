@@ -55,7 +55,17 @@
 	cost = 30
 	contains = list(/obj/item/rogue/instrument/vocals)
 
+/datum/supply_pack/rogue/instruments/shamisen
+	name = "Shamisen"
+	cost = 30
+	contains = list(/obj/item/rogue/instrument/shamisen)
+
 /datum/supply_pack/rogue/instruments/trumpet
 	name = "Trumpet"
 	cost = 30
 	contains = list(/obj/item/rogue/instrument/trumpet)
+
+/datum/supply_pack/rogue/instruments/jawharp
+	name = "Jaw Harp"
+	cost = 30
+	contains = list(/obj/item/rogue/instrument/jawharp)

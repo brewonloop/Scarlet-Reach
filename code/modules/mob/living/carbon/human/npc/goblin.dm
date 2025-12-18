@@ -8,14 +8,13 @@
 	bodyparts = list(/obj/item/bodypart/chest/goblin, /obj/item/bodypart/head/goblin, /obj/item/bodypart/l_arm/goblin,
 					/obj/item/bodypart/r_arm/goblin, /obj/item/bodypart/r_leg/goblin, /obj/item/bodypart/l_leg/goblin)
 	rot_type = /datum/component/rot/corpse/goblin
-	var/gob_outfit = /datum/outfit/job/roguetown/npc/goblin
+	var/gob_outfit = /datum/outfit/job/npc/goblin
 	ambushable = FALSE
 	base_intents = list(INTENT_HELP, INTENT_DISARM, INTENT_GRAB, /datum/intent/unarmed/claw)
 	a_intent = INTENT_HELP
 	possible_mmb_intents = list(INTENT_STEAL, INTENT_JUMP, INTENT_KICK, INTENT_BITE)
 	possible_rmb_intents = list(/datum/rmb_intent/feint, /datum/rmb_intent/swift, /datum/rmb_intent/riposte, /datum/rmb_intent/weak)
 	flee_in_pain = TRUE
-	vitae_pool = 250 // Small, frail creechers with not so much vitality to gain from.
 
 /mob/living/carbon/human/species/goblin/npc
 	aggressive=1
@@ -134,7 +133,6 @@
 	H.update_inv_hands()
 	H.update_inv_handcuffed()
 	H.update_inv_legcuffed()
-	H.update_fire()
 	H.update_body()
 	var/mob/living/carbon/human/species/goblin/G = H
 	G.update_wearable()
@@ -190,8 +188,9 @@
 
 	apply_overlay(ARMOR_LAYER)
 
-/mob/living/carbon/human/species/goblin/update_inv_head()
+/mob/living/carbon/human/species/goblin/update_inv_head(hide_nonstandard = FALSE)
 	update_wearable()
+
 /mob/living/carbon/human/species/goblin/update_inv_armor()
 	update_wearable()
 
@@ -224,7 +223,7 @@
 	if(eyes)
 		eyes.Remove(src,1)
 		QDEL_NULL(eyes)
-	eyes = new /obj/item/organ/eyes/night_vision/nightmare
+	eyes = new /obj/item/organ/eyes/night_vision/wild_goblin
 	eyes.Insert(src)
 	src.underwear = "Nude"
 	if(src.charflaw)
@@ -288,7 +287,7 @@
 
 //////////////////   OUTFITS	//////////////////
 
-/datum/outfit/job/roguetown/npc/goblin/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/npc/goblin/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.STASTR = 8
 	var/chance_zjumper = 5
@@ -326,7 +325,7 @@
 				head = /obj/item/clothing/head/roguetown/helmet/leather/goblin
 		if(4) //lightly armored sword/flail/daggers
 			if(prob(50))
-				r_hand = /obj/item/rogueweapon/sword/iron
+				r_hand = /obj/item/rogueweapon/sword/stone
 			else
 				r_hand = /obj/item/rogueweapon/mace/spiked
 			if(prob(30))
@@ -348,7 +347,7 @@
 			else
 				head = /obj/item/clothing/head/roguetown/helmet/leather/goblin
 			if(prob(50))
-				r_hand = /obj/item/rogueweapon/sword/iron
+				r_hand = /obj/item/rogueweapon/sword/stone
 			else
 				r_hand = /obj/item/rogueweapon/mace/spiked
 			if(prob(20))

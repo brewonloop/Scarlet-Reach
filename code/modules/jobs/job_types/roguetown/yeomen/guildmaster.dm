@@ -5,8 +5,9 @@
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	min_pq = 0
+	min_pq = 15
 	selection_color = JCOLOR_YEOMAN
+	social_rank = SOCIAL_RANK_YEOMAN
 
 	allowed_races = RACES_ALL_KINDS
 	disallowed_races = list(
@@ -17,7 +18,7 @@
 	tutorial = "You are the leader of the Scarlet Reach Guild of Crafts. You represents the interests of all of the craftsmen underneath you - including the Tailor\
 	the Blacksmiths, the Artificers and the Architects. Other townspeople may look to you for guidance, but they are not under your control. You are an experienced smith and artificer, and can do their work easily. Protect the craftsmen's interests."  
 
-	outfit = /datum/outfit/job/roguetown/guildmaster
+	outfit = /datum/outfit/job/guildmaster
 	selection_color = JCOLOR_YEOMAN
 	display_order = JDO_GUILDMASTER
 	give_bank_account = 25
@@ -26,7 +27,7 @@
 	round_contrib_points = 3
 	advclass_cat_rolls = list(CTAG_GUILDMASTER = 2)
 
-	job_traits = list(TRAIT_TRAINED_SMITH, TRAIT_SEEPRICES)
+	job_traits = list(TRAIT_TRAINED_SMITH, TRAIT_SEEPRICES, TRAIT_MEDIUMARMOR, TRAIT_PEASANTMILITIA)
 	job_subclasses = list(
 		/datum/advclass/guildmaster
 	)
@@ -35,7 +36,7 @@
 	name = "Guildmaster"
 	tutorial = "You are the leader of the Scarlet Reach Guild of Crafts. You represents the interests of all of the craftsmen underneath you - including the Tailor\
 	the Blacksmiths, the Artificers and the Architects. Other townspeople may look to you for guidance, but they are not under your control. You are an experienced smith and artificer, and can do their work easily. Protect the craftsmen's interests."  
-	outfit = /datum/outfit/job/roguetown/guildmaster/basic
+	outfit = /datum/outfit/job/guildmaster/basic
 	category_tags = list(CTAG_GUILDMASTER)
 
 	subclass_stats = list(
@@ -68,18 +69,10 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/guildmaster
+/datum/outfit/job/guildmaster
 	has_loadout = TRUE
 
-/datum/job/roguetown/guildmaster/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
-/datum/outfit/job/roguetown/guildmaster/choose_loadout(mob/living/carbon/human/H)
+/datum/outfit/job/guildmaster/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
 	if(H.age == AGE_OLD)
 		H.adjust_skillrank(/datum/skill/craft/blacksmithing, 1, TRUE)
@@ -89,7 +82,7 @@
 		H.adjust_skillrank(/datum/skill/misc/sewing, 1, TRUE) // Worse than the real tailor, so can't steal their job right away 
 		H.adjust_skillrank(/datum/skill/craft/tanning, 1, TRUE)
 
-/datum/outfit/job/roguetown/guildmaster/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/guildmaster/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	head = /obj/item/clothing/head/roguetown/chaperon/noble/guildmaster
@@ -105,10 +98,17 @@
 		shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
 		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/artificer
 		backl = /obj/item/storage/backpack/rogue/backpack
-		backpack_contents = list(/obj/item/rogueweapon/hammer/iron = 1, /obj/item/rogueweapon/tongs = 1, /obj/item/recipe_book/blacksmithing = 1)
+		backpack_contents = list(/obj/item/rogueweapon/hammer/iron = 1, 
+		/obj/item/rogueweapon/tongs = 1, 
+		/obj/item/recipe_book/blacksmithing = 1,
+		/obj/item/clothing/mask/rogue/spectacles/golden = 1, 
+		/obj/item/contraption/linker/master = 1,
+		)
 		belt = /obj/item/storage/belt/rogue/leather
 		beltl = /obj/item/storage/belt/rogue/pouch/coins/rich
 		beltr = /obj/item/storage/keyring/guildmaster
+	ADD_TRAIT(H, TRAIT_MASTER_CARPENTER, TRAIT_GENERIC)		
+	ADD_TRAIT(H, TRAIT_MASTER_MASON, TRAIT_GENERIC)	
 
 GLOBAL_VAR_INIT(last_guildmaster_announcement, -50000) // Inits variable for later
 

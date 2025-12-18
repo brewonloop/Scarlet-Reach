@@ -6,7 +6,7 @@
 	bodyparts = list(/obj/item/bodypart/chest, /obj/item/bodypart/head, /obj/item/bodypart/l_arm,
 					 /obj/item/bodypart/r_arm, /obj/item/bodypart/r_leg, /obj/item/bodypart/l_leg)
 	faction = list("undead")
-	var/skel_outfit = /datum/outfit/job/roguetown/npc/skeleton
+	var/skel_outfit = /datum/outfit/job/npc/skeleton
 	var/skel_fragile = FALSE
 	ambushable = FALSE
 	rot_type = null
@@ -68,10 +68,12 @@
 	ADD_TRAIT(src, TRAIT_TOXIMMUNE, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_LIMBATTACHMENT, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_HEAVYARMOR, TRAIT_GENERIC)
+	ADD_TRAIT(src, TRAIT_SILVER_WEAK, TRAIT_GENERIC)
 	if(skel_fragile)
 		ADD_TRAIT(src, TRAIT_CRITICAL_WEAKNESS, TRAIT_GENERIC)
 	else
 		ADD_TRAIT(src, TRAIT_INFINITE_STAMINA, TRAIT_GENERIC) // Not touching lich balance in a fix PR - for now
+		ADD_TRAIT(src, TRAIT_SLOW_SWIMMER, TRAIT_GENERIC)
 	var/obj/item/organ/eyes/eyes = src.getorganslot(ORGAN_SLOT_EYES)
 	if(eyes)
 		eyes.Remove(src,1)
@@ -86,7 +88,7 @@
 		if(OU)
 			equipOutfit(OU)
 
-/datum/outfit/job/roguetown/npc/skeleton/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/npc/skeleton/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.STASTR = 14
 	H.STASPD = 8
@@ -179,9 +181,9 @@
     skel_outfit = null
 
 /mob/living/carbon/human/species/skeleton/npc/bogguard
-	skel_outfit = /datum/outfit/job/roguetown/npc/skeleton/npc/bogguard
+	skel_outfit = /datum/outfit/job/npc/skeleton/npc/bogguard
 
-/datum/outfit/job/roguetown/npc/skeleton/npc/bogguard/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/npc/skeleton/npc/bogguard/pre_equip(mob/living/carbon/human/H)
 	..()
 	if(prob(50))//WRIST
 		wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
@@ -226,9 +228,9 @@
 	H.adjust_skillrank(/datum/skill/combat/shields, 2, TRUE)
 
 /mob/living/carbon/human/species/skeleton/npc/bogguard/master
-	skel_outfit = /datum/outfit/job/roguetown/npc/skeleton/npc/bogguard/master
+	skel_outfit = /datum/outfit/job/npc/skeleton/npc/bogguard/master
 
-/datum/outfit/job/roguetown/npc/skeleton/npc/bogguard/master/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/npc/skeleton/npc/bogguard/master/pre_equip(mob/living/carbon/human/H)
 	. = ..()
 	head = /obj/item/clothing/head/roguetown/helmet/bascinet/pigface/hounskull
 	gloves = /obj/item/clothing/gloves/roguetown/plate

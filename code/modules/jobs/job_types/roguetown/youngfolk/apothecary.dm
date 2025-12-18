@@ -8,13 +8,14 @@
 	allowed_races = RACES_ALL_KINDS
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
 	tutorial = "Working under the tutelage of the court physician, you still remain a mere apprentice in the medical arts. Woe is the one who has to suffer your hand holding the scalpel when your master is out."
-	outfit = /datum/outfit/job/roguetown/apothecary
+	outfit = /datum/outfit/job/apothecary
 	cmode_music = 'sound/music/combat_physician.ogg'
 	display_order = JDO_APOTHECARY
 	give_bank_account = 30
-	min_pq = 0
+	min_pq = 5
 	max_pq = null
 	round_contrib_points = 2
+	social_rank = SOCIAL_RANK_YEOMAN
 
 	advclass_cat_rolls = list(CTAG_APOTH = 2)
 	job_traits = list(TRAIT_NOSTINK, TRAIT_EMPATH)
@@ -22,19 +23,11 @@
 		/datum/advclass/apothecary
 	)
 
-/datum/job/roguetown/apothecary/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup")
-
 /datum/advclass/apothecary
 	name = "Apothecary"
 	tutorial = "Working under the tutelage of the court physician, you still remain a mere apprentice in the medical arts. \
 	Woe is the one who has to suffer your hand holding the scalpel when your master is out."
-	outfit = /datum/outfit/job/roguetown/apothecary/basic
+	outfit = /datum/outfit/job/apothecary/basic
 	category_tags = list(CTAG_APOTH)
 
 	subclass_stats = list(
@@ -51,10 +44,11 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/medicine = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/sewing = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/alchemy = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/alchemy = SKILL_LEVEL_EXPERT,
+		/datum/skill/labor/farming = SKILL_LEVEL_APPRENTICE,
 	)
 
-/datum/outfit/job/roguetown/apothecary/basic/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/apothecary/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
 	head = /obj/item/clothing/head/roguetown/roguehood/black
@@ -62,7 +56,7 @@
 	shirt = /obj/item/clothing/suit/roguetown/shirt/apothshirt
 	armor = /obj/item/clothing/suit/roguetown/shirt/robe/black
 	belt = /obj/item/storage/belt/rogue/leather/rope
-	neck = /obj/item/storage/belt/rogue/pouch/coins/poor
+	neck = /obj/item/storage/belt/rogue/pouch/coins/mid
 	beltl = /obj/item/storage/belt/rogue/surgery_bag/full/physician
 	beltr = /obj/item/roguekey/physician
 	id = /obj/item/scomstone/bad

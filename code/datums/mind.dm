@@ -41,7 +41,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 
 	var/memory
 
-	var/assigned_role
+	var/datum/job/assigned_role
 	var/special_role
 	var/list/restricted_roles = list()
 
@@ -108,6 +108,14 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	var/list/personal_objectives = list() // List of personal objectives not tied to the antag roles
 
 	var/list/special_people = list()
+
+	// Spell persistence system for transformations
+	var/list/stored_transformation_spells	// Preserves spells across forms
+	var/can_store_spells = FALSE			// Trait to enable spell storage
+	// Priest miracle set switching
+	var/list/stored_miracle_sets				// Associative: god_name = devotion_datum
+	var/active_miracle_set						// Currently active god name
+	var/list/miracle_button_states				// Associative: spell_type = list("locked", "moved") - persists across all gods
 
 /datum/mind/New(key)
 	src.key = key
@@ -701,6 +709,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	if(!S)
 		return
 	spell_list += S
+	// Automatically enable spell storage for transformation spells
+	if(istype(S, /obj/effect/proc_holder/spell/targeted/shapeshift) || istype(S, /obj/effect/proc_holder/spell/targeted/wildshape))
+		enable_spell_storage()
 	S.action.Grant(current)
 
 /datum/mind/proc/check_learnspell()
@@ -893,3 +904,67 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 /datum/mind/proc/get_special_person_colour(mob/M)
 	if (special_people[M.real_name])
 		return special_people[M.real_name]
+
+/datum/mind/proc/enable_spell_storage()
+	can_store_spells = TRUE
+
+/datum/mind/proc/store_spell_list()
+	if(!can_store_spells)
+		return null
+	if(!spell_list || !length(spell_list))
+		return list()
+	// Return a copy of the spell_list (the actual spell objects, not types)
+	return spell_list.Copy()
+
+/datum/mind/proc/restore_spell_list(list/stored_spells, list/always_keep_types)
+	if(!current)
+		return FALSE
+	
+	// Remove all current spell actions
+	for(var/obj/effect/proc_holder/spell/S in spell_list)
+		S.action?.Remove(current)
+	
+	// Build new spell list
+	var/list/new_spell_list = list()
+	var/list/present_types = list()
+	
+	// Add spells that should always be kept (by type)
+	if(always_keep_types && length(always_keep_types))
+		for(var/obj/effect/proc_holder/spell/S in spell_list)
+			if(S.type in always_keep_types)
+				new_spell_list += S
+				present_types[S.type] = TRUE
+	
+	// Add stored spells (actual spell objects)
+	if(stored_spells && length(stored_spells))
+		for(var/obj/effect/proc_holder/spell/S in stored_spells)
+			if(present_types[S.type])
+				continue
+			new_spell_list += S
+			present_types[S.type] = TRUE
+	
+	// Update spell_list
+	spell_list = new_spell_list
+	
+	// Grant all actions for the new spell list
+	for(var/obj/effect/proc_holder/spell/S in spell_list)
+		S.action?.Grant(current)
+	
+	return TRUE
+
+/proc/handle_special_items_retrieval(mob/user, atom/host_object)
+	// Attempts to retrieve an item from a player's stash, and applies any base colors, where preferable.
+	if(user.mind && isliving(user))
+		if(user.mind.special_items && user.mind.special_items.len)
+			var/item = input(user, "What will I take?", "STASH") as null|anything in user.mind.special_items
+			if(item)
+				if(user.Adjacent(host_object))
+					if(user.mind.special_items[item])
+						var/path2item = user.mind.special_items[item]
+						user.mind.special_items -= item
+						var/obj/item/I = new path2item(user.loc)
+						user.put_in_hands(I)
+						if (istype(I, /obj/item/clothing)) // commit any pref dyes to our item if it is clothing and we have them available
+							var/dye = user.client?.prefs.resolve_loadout_to_color(path2item)
+							if (dye)
+								I.add_atom_colour(dye, FIXED_COLOUR_PRIORITY)

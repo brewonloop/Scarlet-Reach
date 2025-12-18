@@ -11,8 +11,9 @@
 	return TRUE
 
 /client/proc/get_looc()
-	var/msg = input(src, null, "looc \"text\"") as text|null
+	var/msg = input(src, "", "looc") as text|null
 	do_looc(msg, FALSE)
+
 
 /client/verb/looc(msg as text)
 	set name = "LOOC"
@@ -85,7 +86,7 @@
 		if(!M.client)
 			continue
 		if((C in GLOB.admins) && (C.prefs.chat_toggles & CHAT_ADMINLOOC))
-			added_text += " ([mob.ckey]) <A href='?_src_=holder;[HrefToken()];mute=[ckey];mute_type=[MUTE_LOOC]'><font color='[(muted & MUTE_LOOC)?"red":"blue"]'>\[MUTE\]</font></a>"
+			added_text += " ([mob.ckey]) [ADMIN_FLW(mob)] <A href='?_src_=holder;[HrefToken()];mute=[ckey];mute_type=[MUTE_LOOC]'><font color='[(muted & MUTE_LOOC)?"red":"blue"]'>\[MUTE\]</font></a>"
 			is_admin = 1
 		else if(isobserver(M))
 			continue
@@ -95,6 +96,6 @@
 				var/turf/speakturf = get_turf(M)
 				var/turf/sourceturf = get_turf(usr)
 				if(is_admin == 1 || (wp == 1 && (M in range (7, src))))
-					to_chat(C, "<font color='["#6699CC"]'><b><span class='prefix'>[prefix]:</span> <EM>[src.mob.real_name][added_text]:</EM> <span class='message'>[msg]</span></b></font>")
+					to_chat(C, "<font color='["#003458"]'><b><span class='prefix'>[prefix]:</span> <EM>[src.mob.real_name][added_text]:</EM> <span class='message'>[msg]</span></b></font>")
 				else if(speakturf in get_hear(7, sourceturf))
 					to_chat(C, "<font color='["#6699CC"]'><b><span class='prefix'>[prefix]:</span> <EM>[src.mob.real_name][added_text]:</EM> <span class='message'>[msg]</span></b></font>")
